@@ -1,0 +1,39 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Organisational unit:</strong>
+  <%= @account.organisational_unit_id %>
+</p>
+
+<p>
+  <strong>Start date:</strong>
+  <%= @account.start_date %>
+</p>
+
+<p>
+  <strong>End date:</strong>
+  <%= @account.end_date %>
+</p>
+
+<p>
+  <strong>Resource needed:</strong>
+  <%= @account.resource_needed %>
+</p>
+
+<p>
+  <strong>Resource allocated:</strong>
+  <%= @account.resource_allocated %>
+</p>
+
+<p>
+  <strong>Resource:</strong>
+  <%= @account.resource_id %>
+</p>
+
+<p>
+  <strong>Status:</strong>
+  <%= @account.status %>
+</p>
+
+<%= link_to 'Edit', edit_account_path(@account) %> |
+<%= link_to 'Back', accounts_path %>

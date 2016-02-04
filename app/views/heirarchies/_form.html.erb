@@ -1,0 +1,21 @@
+<%= form_for(@heirarchy) do |f| %>
+  <% if @heirarchy.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@heirarchy.errors.count, "error") %> prohibited this heirarchy from being saved:</h2>
+
+      <ul>
+      <% @heirarchy.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :heirarchy_name %><br>
+    <%= f.text_field :heirarchy_name %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

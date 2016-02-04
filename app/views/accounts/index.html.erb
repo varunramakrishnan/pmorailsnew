@@ -1,0 +1,39 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Accounts</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Organisational unit</th>
+      <th>Start date</th>
+      <th>End date</th>
+      <th>Resource needed</th>
+      <th>Resource allocated</th>
+      <th>Resource</th>
+      <th>Status</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @accounts.each do |account| %>
+      <tr>
+        <td><%= account.organisational_unit_id %></td>
+        <td><%= account.start_date %></td>
+        <td><%= account.end_date %></td>
+        <td><%= account.resource_needed %></td>
+        <td><%= account.resource_allocated %></td>
+        <td><%= account.resource_id %></td>
+        <td><%= account.status %></td>
+        <td><%= link_to 'Show', account %></td>
+        <td><%= link_to 'Edit', edit_account_path(account) %></td>
+        <td><%= link_to 'Destroy', account, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Account', new_account_path %>

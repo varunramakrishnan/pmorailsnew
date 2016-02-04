@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  organisational_unit_id: 1
+  start_date: 2016-02-01
+  end_date: 2016-02-01
+  resource_needed: 1
+  resource_allocated: 1
+  resource_id: 1
+  status: MyString
+
+two:
+  organisational_unit_id: 1
+  start_date: 2016-02-01
+  end_date: 2016-02-01
+  resource_needed: 1
+  resource_allocated: 1
+  resource_id: 1
+  status: MyString

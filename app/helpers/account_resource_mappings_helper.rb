@@ -1,0 +1,2 @@
+module AccountResourceMappingsHelper
+end
