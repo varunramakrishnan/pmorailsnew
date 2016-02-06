@@ -32,6 +32,7 @@ ActiveRecord::Schema.define(version: 20160201114918) do
   end
 
   create_table "accounts", force: :cascade do |t|
+    t.string   "account_name",           limit: 255
     t.integer  "organisational_unit_id", limit: 4
     t.date     "start_date"
     t.date     "end_date"

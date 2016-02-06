@@ -1,6 +1,7 @@
 class CreateAccounts < ActiveRecord::Migration
   def change
     create_table :accounts do |t|
+      t.string :account_name
       t.integer :organisational_unit_id
       t.date :start_date
       t.date :end_date

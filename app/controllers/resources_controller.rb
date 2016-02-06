@@ -37,9 +37,15 @@ class ResourcesController < ApplicationController
 
   # POST /resources
   # POST /resources.json
+
+  def findmanagers
+    heirarchy=Heirarchy.where(heirarchy_name: "Project Manager").pluck(:id)
+    res = Resource.where(heirarchy_id: heirarchy)
+    render json: {success: res }
+  end
   def create
     @resource = Resource.new(resource_params)
-    skill = Skill.find(params[:skill])
+    #skill = Skill.find(params[:skill])
     respond_to do |format|
       if @resource.save
         res = Resource.find_by_employee_id resource_params[:employee_id]
@@ -68,8 +74,9 @@ class ResourcesController < ApplicationController
         test.each do |s|
           ResourceSkillMapping.create({resource_id: res.id, skill_id: s[:id]})
         end
+        result = {id: res.id, employee_id: res.employee_id, employee_name: res.employee_name, heirarchy_id: res.heirarchy_id, role: res.role, skill: res.skills.collect(&:skill_name).join(",")}
         format.html { redirect_to @resource, notice: 'Resource was successfully created.' }
-        format.json { render json: {success: @resource } }
+        format.json { render json: {success: result } }
       else
         format.html { render :new }
         format.json { render json: {error: @resource.errors } }

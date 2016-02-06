@@ -22,6 +22,7 @@ Rails.application.routes.draw do
   resources :accounts
 
   post 'user/search' => 'users#search'
+  get 'managers' => 'resources#findmanagers'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
