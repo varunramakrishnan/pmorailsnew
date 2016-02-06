@@ -5,12 +5,25 @@ class ResourcesController < ApplicationController
   # GET /resources
   # GET /resources.json
   def index
-    @resources = Resource.all
+    resources = Resource.all
+    result = []
+    resources.each do |res|
+      result << {id: res.id, employee_id: res.employee_id, employee_name: res.employee_name, heirarchy_id: res.heirarchy_id, role: res.role, skill: res.skills.collect(&:skill_name).join(","), skill_id: res.skills.collect(&:id)}
+    end
+    render json: result
   end
 
   # GET /resources/1
   # GET /resources/1.json
   def show
+    resource = Resource.find(params[:id])
+    skil = []
+    allskills=resource.skills
+    allskills.each do |ski|
+      skil << {id: ski.id}
+    end 
+    result = {id: resource.id, employee_id: resource.employee_id, employee_name: resource.employee_name, heirarchy_id: resource.heirarchy_id, role: resource.role, skill: resource.skills.collect(&:skill_name).join(","), skill_id: skil}
+    render json: result
   end
 
   # GET /resources/new
@@ -26,9 +39,15 @@ class ResourcesController < ApplicationController
   # POST /resources.json
   def create
     @resource = Resource.new(resource_params)
-
+    skill = Skill.find(params[:skill])
     respond_to do |format|
       if @resource.save
+        res = Resource.find_by_employee_id resource_params[:employee_id]
+        test=params[:resmodel].to_a
+        test.each do |s| 
+          ResourceSkillMapping.create({resource_id: res.id, skill_id: s[:id]})
+        end
+        #mapping = ResourceSkillMapping.create({resource_id: res.id, skill_id: skill.id})
         format.html { redirect_to @resource, notice: 'Resource was successfully created.' }
         format.json { render json: {success: @resource } }
       else
@@ -43,11 +62,17 @@ class ResourcesController < ApplicationController
   def update
     respond_to do |format|
       if @resource.update(resource_params)
-        format.html { redirect_to @resource, notice: 'Resource was successfully updated.' }
-        format.json { render :show, status: :ok, location: @resource }
+        res = Resource.find(params[:id])
+        ResourceSkillMapping.where(resource_id: res.id).destroy_all
+        test=params[:resmodel].to_a
+        test.each do |s|
+          ResourceSkillMapping.create({resource_id: res.id, skill_id: s[:id]})
+        end
+        format.html { redirect_to @resource, notice: 'Resource was successfully created.' }
+        format.json { render json: {success: @resource } }
       else
-        format.html { render :edit }
-        format.json { render json: @resource.errors, status: :unprocessable_entity }
+        format.html { render :new }
+        format.json { render json: {error: @resource.errors } }
       end
     end
   end
@@ -70,6 +95,10 @@ class ResourcesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def resource_params
-      params.require(:resource).permit(:employee_id, :employee_name, :role, :heirarchy_id)
+      params.require(:resource).permit(:employee_id, :employee_name, :role, :heirarchy_id, :skill, :resmodel)
     end
+
+    
+    
+
 end
