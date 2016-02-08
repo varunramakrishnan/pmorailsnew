@@ -23,6 +23,9 @@ Rails.application.routes.draw do
 
   post 'user/search' => 'users#search'
   get 'managers' => 'resources#findmanagers'
+  get 'service_units/:id' => 'organisational_units#services'
+  get 'filtered-resources/:id' => 'resources#filtered'
+  post 'account-details' => 'resources#accountdetails'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

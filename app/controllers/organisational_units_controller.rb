@@ -13,6 +13,12 @@ class OrganisationalUnitsController < ApplicationController
   def show
   end
 
+  def services
+    organisational_units = OrganisationalUnit.find(params[:id])
+    services=organisational_units.services
+    render json: {success: services }
+  end 
+
   # GET /organisational_units/new
   def new
     @organisational_unit = OrganisationalUnit.new

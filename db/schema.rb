@@ -11,14 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160201114918) do
+ActiveRecord::Schema.define(version: 20160208150537) do
 
   create_table "account_resource_mappings", force: :cascade do |t|
     t.integer  "resource_id",       limit: 4
     t.integer  "account_id",        limit: 4
     t.integer  "percentage_loaded", limit: 4
-    t.date     "start_date"
-    t.string   "end_datedate",      limit: 255
+    t.string   "dates",             limit: 255
     t.string   "status",            limit: 255
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
@@ -34,8 +33,8 @@ ActiveRecord::Schema.define(version: 20160201114918) do
   create_table "accounts", force: :cascade do |t|
     t.string   "account_name",           limit: 255
     t.integer  "organisational_unit_id", limit: 4
-    t.date     "start_date"
-    t.date     "end_date"
+    t.string   "start_date",             limit: 255
+    t.string   "end_date",               limit: 255
     t.integer  "resource_needed",        limit: 4
     t.integer  "resource_allocated",     limit: 4
     t.integer  "resource_id",            limit: 4

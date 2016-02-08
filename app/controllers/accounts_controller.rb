@@ -4,7 +4,13 @@ class AccountsController < ApplicationController
   # GET /accounts
   # GET /accounts.json
   def index
-    @accounts = Account.all
+    accounts = Account.all
+    result = []
+    accounts.each do |res|
+      man = Resource.find(res.resource_id).employee_name;
+      result << {id: res.id, account_name: res.account_name, organisational_unit_name: res.organisational_unit.unit_name, manager: man, resource_needed: res.resource_needed, status: res.status, services: res.services.collect(&:service_name).join(",")}
+    end
+    render json: result
   end
 
   # GET /accounts/1
@@ -28,6 +34,11 @@ class AccountsController < ApplicationController
 
     respond_to do |format|
       if @account.save
+        res = Account.find_by_account_name account_params[:account_name]
+        test=params[:sermodel].to_a
+        test.each do |s| 
+          AccountServiceMapping.create({account_id: res.id, service_id: s[:id]})
+        end
         format.html { redirect_to @account, notice: 'Account was successfully created.' }
         format.json { render :show, status: :created, location: @account }
       else
@@ -69,6 +80,6 @@ class AccountsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def account_params
-      params.require(:account).permit(:account_name, :organisational_unit_id, :start_date, :end_date, :resource_needed, :resource_allocated, :resource_id, :status)
+      params.require(:account).permit(:account_name, :organisational_unit_id, :start_date, :end_date, :resource_needed, :resource_allocated, :resource_id, :status, :sermodel)
     end
 end

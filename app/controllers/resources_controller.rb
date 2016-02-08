@@ -26,6 +26,25 @@ class ResourcesController < ApplicationController
     render json: result
   end
 
+  def filtered
+    account = Account.find(params[:id])
+    result = []
+    arr = []
+    allaccountservices=account.services
+    allaccountservices.each do |ser|
+      allskill=Skill.find_by_skill_name(ser.service_name)
+      if allskill
+        allskill.resources.each do |res|
+          if arr.exclude? res.id
+            arr << res.id
+            result << {id: res.id, employee_id: res.employee_id, employee_name: res.employee_name}
+          end
+        end
+      end  
+    end
+    render json: result    
+  end 
+    
   # GET /resources/new
   def new
     @resource = Resource.new
@@ -63,6 +82,21 @@ class ResourcesController < ApplicationController
     end
   end
 
+  #POST accountdetails
+  #POST accountdetails.json
+    def accountdetails
+        success = 0
+        account = Account.find(params[:account][:id])
+        updated = Account.update(params[:account][:id], :start_date => params[:account][:minEndDate], :end_date => params[:account][:maxEndDate])
+      if updated
+        par = params[:account][:resources].to_a
+        par.each do |s|
+          success = AccountResourceMapping.create({resource_id: s[:resource_id], account_id: params[:account][:id] ,dates: s[:Dates]})
+        end
+      end
+      render json: success
+    end
+
   # PATCH/PUT /resources/1
   # PATCH/PUT /resources/1.json
   def update
@@ -99,7 +133,13 @@ class ResourcesController < ApplicationController
     def set_resource
       @resource = Resource.find(params[:id])
     end
+    #def new_params
+     # params.require(:account).permit(:id, :resources, :minEndDate, :maxEndDate)
+    #end
 
+     #def res_params
+      #params.require(:resources).permit(:resource_id, :Dates)
+    #end
     # Never trust parameters from the scary internet, only allow the white list through.
     def resource_params
       params.require(:resource).permit(:employee_id, :employee_name, :role, :heirarchy_id, :skill, :resmodel)
