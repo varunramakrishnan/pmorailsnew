@@ -86,17 +86,254 @@ class ResourcesController < ApplicationController
   #POST accountdetails.json
     def accountdetails
         success = 0
+        i=0
+        message=inValues=arr=[]
         account = Account.find(params[:account][:id])
         updated = Account.update(params[:account][:id], :start_date => params[:account][:minEndDate], :end_date => params[:account][:maxEndDate])
       if updated
         par = params[:account][:resources].to_a
         par.each do |s|
-          success = AccountResourceMapping.create({resource_id: s[:resource_id], account_id: params[:account][:id] ,dates: s[:Dates]})
+          resourcemap=AccountResourceMapping.where(resource_id: s[:resource_id]).all
+          arr=[]
+          hashes = Hash.new
+          if resourcemap
+             resourcemap.each do |serv|
+              newvalues = serv.dates[1,serv.dates.length-2].split(",")
+              newvalues.each do |nvalue|
+                 valdate=DateTime.strptime(nvalue.to_f.to_s[0,10],'%s');
+                 vald=valdate.strftime("%d-%m-%y")
+                 if hashes.key?(vald)
+                   newval=hashes[vald].to_i+serv.percentage_loaded.to_i
+                  hashes[vald]= newval 
+                  # hashes[vald]= serv.percentage_loaded 
+                else
+                  hashes[vald]= serv.percentage_loaded     
+                end
+                 unless arr.include?(vald)
+                   arr<<vald
+                 end
+              end
+             end
+             
+              datenew=s[:Dates].to_s
+             inValues=datenew[1,datenew.length-2].split(",")
+             inValues.each do |inv|
+                invaldate=DateTime.strptime(inv.to_f.to_s[0,10],'%s');
+                invald=invaldate.strftime("%d-%m-%y")
+                if hashes[invald]
+                 newvar=hashes[invald]+s[:percentage_loaded]
+                 if newvar > 100
+                  i=1
+                  message << (Resource.find(s[:resource_id]).employee_name).to_s+" has already been allocated to some other project on the selected dates"
+                  break
+                 end
+                end  
+                
+             end
+             # if i==inValues.length
+             #  t=1 
+             # end
+          else
+          end
+              if i==0
+                    ressave = AccountResourceMapping.create({resource_id: s[:resource_id], account_id: params[:account][:id] ,dates: s[:Dates]})                
+                   # ressave =1
+                   if ressave
+                    message << (Resource.find(s[:resource_id]).employee_name).to_s+" has  been added to the project"
+                   end
+              end          
+          
         end
       end
-      render json: success
+
+      render json: message
     end
 
+  #POST resourcedates
+  #POST resourcedates.json
+def resourcedates
+        success = 0
+        results=[]
+        resources = res_params[:resources].split(",")
+        resources.each do |resource|
+          accountresource = AccountResourceMapping.where(resource_id: resource).all
+                accountresource.each do |ser|
+                  
+                resname=Resource.find(ser.resource_id).employee_name
+                    values = ser.dates[1,ser.dates.length-2].split(",")
+                          values.each do |value|
+                          results << {title: resname, start: value}
+                     end
+                end
+        end
+      render json: results
+    end
+  #GET freeresources
+  #GET freeresources.json
+  def freeresources
+      results=[]
+      startdate=params[:startdate]
+      enddate=params[:enddate]
+      stdate=DateTime.strptime(startdate[0,10],'%s');
+      endate=DateTime.strptime(enddate[0,10],'%s');
+      #test
+      resor=Resource.all
+      resor.each do |res|
+        newtemarr=[]
+        newdate=stdate
+        while ((newdate >= stdate) && (newdate <= endate)) do
+                newd=newdate.strftime("%d-%m-%y")
+                unless newtemarr.include?(newd)
+                  newtemarr<<newd
+                end
+                newdate = newdate + 1.day
+        end
+        reshunmap=AccountResourceMapping.where(resource_id: res.id).where(percentage_loaded: 100).all
+        reshunmap.each do |resh|
+           newreshvalues = resh.dates[1,resh.dates.length-2].split(",")
+           newreshvalues.each do |newreshv|
+            newreshdate=DateTime.strptime(newreshv.to_f.to_s[0,10],'%s');
+            newreshdatedmy=newreshdate.strftime("%d-%m-%y")
+            if newtemarr.include?newreshdatedmy
+              newtemarr.delete(newreshdatedmy)
+            end
+           end
+        end
+        ressevfmap=AccountResourceMapping.where(resource_id: res.id).where(percentage_loaded: 75).all
+        ressevfmap.each do |resh|
+           newreshvalues = resh.dates[1,resh.dates.length-2].split(",")
+           newreshvalues.each do |newreshv|
+            newreshdate=DateTime.strptime(newreshv.to_f.to_s[0,10],'%s');
+            newreshdatedmy=newreshdate.strftime("%d-%m-%y")
+            if newtemarr.include?newreshdatedmy
+              newtemarr.delete(newreshdatedmy)
+            end
+           end
+        end
+        resfivfmap=AccountResourceMapping.where(resource_id: res.id).where(percentage_loaded: 50).all
+        resfivfmap.each do |resh|
+           newreshvalues = resh.dates[1,resh.dates.length-2].split(",")
+           newreshvalues.each do |newreshv|
+            newreshdate=DateTime.strptime(newreshv.to_f.to_s[0,10],'%s');
+            newreshdatedmy=newreshdate.strftime("%d-%m-%y")
+            if newtemarr.include?newreshdatedmy
+              newtemarr.delete(newreshdatedmy)
+            end
+           end
+        end
+        newtemarr.each do |newv|
+          newdreshdates=DateTime.strptime(newv,"%d-%m-%y")
+          nreshd=newdreshdates.strftime("%s")
+          results << {title: res.employee_name,start: (nreshd+('000'))}
+        end
+
+      end
+              
+
+       #with percentage
+          resor=Resource.all
+          resor.each do |res|
+          resourcemap=AccountResourceMapping.where(resource_id: res.id).where.not(percentage_loaded: 100).all
+          # resourcemap=AccountResourceMapping.where(resource_id: res.id).all
+          if(resourcemap)
+          hashes = Hash.new
+          arr=[]
+          resourcemap.each do |serv|
+
+          newvalues = serv.dates[1,serv.dates.length-2].split(",")
+          newdate = stdate
+          newvalues.each do |nvalue|
+             valdate=DateTime.strptime(nvalue.to_f.to_s[0,10],'%s');
+             vald=valdate.strftime("%d-%m-%y")
+              
+             if hashes.key?(vald)
+                newval=hashes[vald]+serv.percentage_loaded
+               hashes[vald]= newval  
+              else
+               hashes[vald]= serv.percentage_loaded     
+             end
+             unless arr.include?(vald)
+                arr<<vald
+               end
+          end
+          end
+                  arr.each do |myarr|
+                    newdatess=DateTime.strptime(myarr,"%d-%m-%y")
+                    newd=newdatess.strftime("%d-%m-%y")
+                    news=newdatess.strftime("%s")
+                    unless hashes[myarr] >=100
+                      newstr=(100-hashes[myarr].to_f).to_s
+                      results << {title: (res.employee_name+(" (")+(newstr[0,newstr.length-2])+("%)")),start: (news+('000'))}
+                    end
+                  end
+
+                end
+      end
+      #without percentage
+
+
+      #   resor=Resource.all
+      #   resor.each do |res|
+      #   # res=Resource.find(2)
+      #   newarr=[]
+      #   resmap=AccountResourceMapping.where(resource_id: res.id).all
+      #   if(resmap)
+      #     resmap.each do |ser|
+      #       values = ser.dates[1,ser.dates.length-2].split(",")
+      #       newdate = stdate
+      #       arr=[]
+        
+      #         values.each do |value|
+      #            valdate=DateTime.strptime(value.to_f.to_s[0,10],'%s');
+      #            vald=valdate.strftime("%d-%m-%y")
+      #            arr<<vald
+      #           #results<<{id: value.to_f.to_s[0,10]}
+      #         end
+
+      #         while ((newdate >= stdate) && (newdate <= endate)) do
+      #           newd=newdate.strftime("%d-%m-%y")
+      #           unless arr.include?(newd)
+      #             unless newarr.include?(newd)
+      #             news=newdate.strftime("%s")
+      #             results << {title: res.employee_name,start: (news+('000'))}
+      #             end
+      #           end
+      #           newarr<<newd
+                
+      #           newdate = newdate + 1.day
+      #         end
+      #     end
+      #   end
+      # end
+
+     
+
+
+
+  #all
+        # noresarr=[]
+        # resmap = AccountResourceMapping.all
+        # resmap.each do |r|
+        #   unless noresarr.include?r.resource_id 
+        #     noresarr<<r.resource_id 
+        #   end
+        # end
+        # allresor=Resource.all
+        # allresor.each do |res|
+        #   unless noresarr.include?res.id 
+        #     # noresarr<<r.resource_id 
+        #     newdate = stdate
+        #     while ((newdate >= stdate) && (newdate <= endate)) do
+        #           news=newdate.strftime("%s")
+        #           results << {title: res.employee_name,start: (news+('000'))}
+        #         newdate = newdate + 1.day
+        #       end
+
+        #   end
+        # end
+    render json: results
+
+  end
   # PATCH/PUT /resources/1
   # PATCH/PUT /resources/1.json
   def update
@@ -143,6 +380,9 @@ class ResourcesController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def resource_params
       params.require(:resource).permit(:employee_id, :employee_name, :role, :heirarchy_id, :skill, :resmodel)
+    end
+    def res_params
+      params.permit(:resources)
     end
 
     

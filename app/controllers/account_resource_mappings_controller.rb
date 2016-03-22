@@ -19,4 +19,20 @@ class AccountResourceMappingsController < ApplicationController
 
   def destroy
   end
+
+  def accountresources
+     accountresource = AccountResourceMapping.where(account_id: params[:id]).all
+     result = []
+     arr = []
+      accountresource.each do |ser|
+        resname=Resource.find(ser.resource_id).employee_name
+        values = ser.dates[1,ser.dates.length-2].split(",")
+          values.each do |value|
+            puts value
+            result << {title: resname, start: value}
+          end
+       
+      end
+    render json: result    
+  end 
 end

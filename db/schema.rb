@@ -11,16 +11,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160208150537) do
+ActiveRecord::Schema.define(version: 20160305104428) do
 
   create_table "account_resource_mappings", force: :cascade do |t|
     t.integer  "resource_id",       limit: 4
     t.integer  "account_id",        limit: 4
     t.integer  "percentage_loaded", limit: 4
-    t.string   "dates",             limit: 255
+    t.text     "dates",             limit: 65535
     t.string   "status",            limit: 255
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
   end
 
   create_table "account_service_mappings", force: :cascade do |t|
@@ -39,8 +39,23 @@ ActiveRecord::Schema.define(version: 20160208150537) do
     t.integer  "resource_allocated",     limit: 4
     t.integer  "resource_id",            limit: 4
     t.string   "status",                 limit: 255
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
+    t.string   "request_type",           limit: 255
+    t.string   "date_of_request",        limit: 255
+    t.string   "region",                 limit: 255
+    t.string   "contact_type",           limit: 255
+    t.string   "location",               limit: 255
+    t.string   "customer_contact",       limit: 255
+    t.text     "other_persons",          limit: 65535
+    t.string   "other_sales_email",      limit: 255
+    t.string   "sow_status",             limit: 255
+    t.string   "account_status",         limit: 255
+    t.string   "comments",               limit: 255
+    t.string   "delivery_manager",       limit: 255
+    t.string   "anticipated_value",      limit: 255
+    t.string   "actual_value",           limit: 255
+    t.string   "anticipated_start_date", limit: 255
   end
 
   create_table "heirarchies", force: :cascade do |t|
