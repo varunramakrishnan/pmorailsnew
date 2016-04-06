@@ -30,10 +30,10 @@ class ServicesController < ApplicationController
     respond_to do |format|
       if @service.save
         format.html { redirect_to @service, notice: 'Service was successfully created.' }
-        format.json { render :show, status: :created, location: @service }
+        format.json { render json: {success: @service } }
       else
         format.html { render :new }
-        format.json { render json: @service.errors, status: :unprocessable_entity }
+        format.json { render json: {error: @service.errors } }
       end
     end
   end

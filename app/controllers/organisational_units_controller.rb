@@ -32,11 +32,20 @@ class OrganisationalUnitsController < ApplicationController
   # POST /organisational_units.json
   def create
     @organisational_unit = OrganisationalUnit.new(organisational_unit_params)
-
+    if @organisational_unit.save
+    unit=OrganisationalUnit.find_by_unit_name organisational_unit_params[:unit_name]
+    eser=params[:services].to_a
+    s=[]
+    eser.each do |es|
+      s<<{suc: es}
+      OrganisationalUnitServiceMapping.create({organisational_unit_id: unit.id, service_id: es[:id]})
+    end 
+    end 
     respond_to do |format|
       if @organisational_unit.save
         format.html { redirect_to @organisational_unit, notice: 'Organisational unit was successfully created.' }
-        format.json { render json: {success: @organisational_unit } }
+         # format.json { render json: {success: @organisational_unit } }
+         format.json { render json: {success: unit } }
       else
         format.html { render :new }
         format.json { render json: {error: @organisational_unit.errors } }
@@ -76,6 +85,6 @@ class OrganisationalUnitsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def organisational_unit_params
-      params.require(:organisational_unit).permit(:unit_name)
+      params.require(:organisational_unit).permit(:unit_name,:services)
     end
 end
