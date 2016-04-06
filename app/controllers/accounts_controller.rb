@@ -30,22 +30,33 @@ class AccountsController < ApplicationController
   # POST /accounts
   # POST /accounts.json
   def create
-    @account = Account.new(account_params)
-
-    respond_to do |format|
-      if @account.save
+    found = Account.find_by_account_name account_params[:account_name]
+    saved=0
+    if found
+      @account = Account.find_by_account_name(account_params[:account_name]).update(account_params)
+      saved=1
+    else
+      @account = Account.new(account_params)  
+      saved=1
+    end
+    #respond_to do |format|
+      if saved
         res = Account.find_by_account_name account_params[:account_name]
+        AccountServiceMapping.where(account_id: res.id).all.destroy_all
         test=params[:sermodel].to_a
         test.each do |s| 
           AccountServiceMapping.create({account_id: res.id, service_id: s[:id]})
         end
-        format.html { redirect_to @account, notice: 'Account was successfully created.' }
-        format.json { render :show, status: :created, location: @account }
+       # format.html { redirect_to @account, notice: 'Account was successfully created.' }
+       #format.html { render :new }
+        #format.json { render :show, status: :created, location: saved }
+        render json: saved
       else
-        format.html { render :new }
-        format.json { render json: @account.errors, status: :unprocessable_entity }
+       # format.html { render :new }
+        #format.json { render json: @account.errors, status: :unprocessable_entity }
+        render json: saved
       end
-    end
+    #end
   end
 
   # PATCH/PUT /accounts/1

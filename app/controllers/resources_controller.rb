@@ -43,6 +43,56 @@ class ResourcesController < ApplicationController
       end  
     end
     render json: result    
+  end
+
+
+  def occupied
+    flag=1;
+    values=[]
+    occupiedresource = AccountResourceMapping.where(resource_id: params[:resources][:resource_id]).all 
+     occupiedresource.each do |ser|
+        values = ser.dates[1,ser.dates.length-2].split(",")
+      end
+       
+    datenew=params[:resources][:Dates]  .to_s
+             inValues=datenew[1,datenew.length-2].split(",")
+             inValues.each do |inv|
+              if values.include?(inv)
+                flag=0
+                break
+              end
+              if flag==0
+                break
+              end
+             end
+             render json: {success: flag }
+  end
+
+
+  def allfiltered
+    account = Account.find(params[:id])
+    result = []
+    arr = []
+    allaccountservices=account.services
+    allaccountservices.each do |ser|
+      allskill=Skill.find_by_skill_name(ser.service_name)
+      if allskill
+        allskill.resources.each do |res|
+          if arr.exclude? res.id
+            arr << res.id
+            result << {id: res.id, employee_id: res.employee_id, employee_name: res.employee_name, group:'F'}
+          end
+        end
+      end  
+    end
+    resources = Resource.all
+    resources.each do |res|
+      if arr.exclude? res.id
+        arr << res.id
+        result << {id: res.id, employee_id: res.employee_id, employee_name: res.employee_name, group:'N'}
+      end
+    end
+    render json: result    
   end 
     
   # GET /resources/new
@@ -90,10 +140,18 @@ class ResourcesController < ApplicationController
         message=inValues=arr=[]
         account = Account.find(params[:account][:id])
         updated = Account.update(params[:account][:id], :start_date => params[:account][:minEndDate], :end_date => params[:account][:maxEndDate])
+        del=AccountResourceMapping.where(account_id: params[:account][:id]).all
+          if del
+            AccountResourceMapping.where(account_id: params[:account][:id]).all.destroy_all
+          end
       if updated
         par = params[:account][:resources].to_a
         par.each do |s|
-          resourcemap=AccountResourceMapping.where(resource_id: s[:resource_id]).all
+          resourcemap=AccountResourceMapping.where(resource_id: s[:resource_id]).where.not(account_id: params[:account][:id]).all
+          update=AccountResourceMapping.where(resource_id: s[:resource_id]).where(account_id: params[:account][:id]).all
+          if update
+            AccountResourceMapping.where(resource_id: s[:resource_id]).where(account_id: params[:account][:id]).all.destroy_all
+          end 
           arr=[]
           hashes = Hash.new
           if resourcemap
@@ -121,7 +179,7 @@ class ResourcesController < ApplicationController
                 invaldate=DateTime.strptime(inv.to_f.to_s[0,10],'%s');
                 invald=invaldate.strftime("%d-%m-%y")
                 if hashes[invald]
-                 newvar=hashes[invald]+s[:percentage_loaded]
+                 newvar=hashes[invald]+s[:percentage_loaded].to_i
                  if newvar > 100
                   i=1
                   message << (Resource.find(s[:resource_id]).employee_name).to_s+" has already been allocated to some other project on the selected dates"
@@ -133,10 +191,9 @@ class ResourcesController < ApplicationController
              # if i==inValues.length
              #  t=1 
              # end
-          else
           end
               if i==0
-                    ressave = AccountResourceMapping.create({resource_id: s[:resource_id], account_id: params[:account][:id] ,dates: s[:Dates]})                
+                    ressave = AccountResourceMapping.create({resource_id: s[:resource_id], account_id: params[:account][:id] , percentage_loaded: s[:percentage_loaded],dates: s[:Dates]})                
                    # ressave =1
                    if ressave
                     message << (Resource.find(s[:resource_id]).employee_name).to_s+" has  been added to the project"
@@ -158,7 +215,6 @@ def resourcedates
         resources.each do |resource|
           accountresource = AccountResourceMapping.where(resource_id: resource).all
                 accountresource.each do |ser|
-                  
                 resname=Resource.find(ser.resource_id).employee_name
                     values = ser.dates[1,ser.dates.length-2].split(",")
                           values.each do |value|
@@ -168,6 +224,34 @@ def resourcedates
         end
       render json: results
     end
+  #POST disenresourcedates
+  #POST disenresourcedates.json
+    def disenresourcedates
+      success = 0
+        results=[]
+        nresults=[]
+         resource = new_params[:id]
+         account = new_params[:account]
+         accountresource = AccountResourceMapping.where(resource_id: resource,account_id: account).all
+         accountresource.each do |ser|
+                resname=Resource.find(ser.resource_id).employee_name
+                    values = ser.dates[1,ser.dates.length-2].split(",")
+                          values.each do |value|
+                            results << {title: resname, start: value}
+                          end
+          end
+          noresource = AccountResourceMapping.where(resource_id: resource).where.not(account_id: account).where(percentage_loaded: 100).all
+          noresource.each do |ner|
+                resname=Resource.find(ner.resource_id).employee_name
+                    values = ner.dates[1,ner.dates.length-2].split(",")
+                          values.each do |value|
+                            nresults << {title: resname, start: value}
+                          end
+          end
+          render json: {dis: nresults,ena: results}
+
+    end
+      
   #GET freeresources
   #GET freeresources.json
   def freeresources
@@ -247,10 +331,10 @@ def resourcedates
              vald=valdate.strftime("%d-%m-%y")
               
              if hashes.key?(vald)
-                newval=hashes[vald]+serv.percentage_loaded
+                newval=hashes[vald]+serv.percentage_loaded.to_i
                hashes[vald]= newval  
               else
-               hashes[vald]= serv.percentage_loaded     
+               hashes[vald]= serv.percentage_loaded.to_i     
              end
              unless arr.include?(vald)
                 arr<<vald
@@ -383,6 +467,9 @@ def resourcedates
     end
     def res_params
       params.permit(:resources)
+    end
+    def new_params
+      params.require(:resources).permit(:id, :account)
     end
 
     
