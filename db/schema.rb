@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160305104428) do
+ActiveRecord::Schema.define(version: 20160407045026) do
 
   create_table "account_resource_mappings", force: :cascade do |t|
     t.integer  "resource_id",       limit: 4
@@ -44,7 +44,7 @@ ActiveRecord::Schema.define(version: 20160305104428) do
     t.string   "request_type",           limit: 255
     t.string   "date_of_request",        limit: 255
     t.string   "region",                 limit: 255
-    t.string   "contact_type",           limit: 255
+    t.string   "contract_type",          limit: 255
     t.string   "location",               limit: 255
     t.string   "customer_contact",       limit: 255
     t.text     "other_persons",          limit: 65535
@@ -75,6 +75,7 @@ ActiveRecord::Schema.define(version: 20160305104428) do
     t.string   "unit_name",  limit: 255
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
+    t.string   "unit_code",  limit: 255
   end
 
   create_table "resource_skill_mappings", force: :cascade do |t|

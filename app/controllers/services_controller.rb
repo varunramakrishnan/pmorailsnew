@@ -26,7 +26,11 @@ class ServicesController < ApplicationController
   # POST /services.json
   def create
     @service = Service.new(service_params)
-
+    if @service.save
+    ser=Service.find_by_service_name service_params[:service_name]
+    OrganisationalUnitServiceMapping.create({organisational_unit_id: params[:unit_code][0][:id].to_i, service_id: ser.id})
+    Skill.create({skill_type: params[:unit_code][0][:unit_name],skill_name: service_params[:service_name],skill_code: (params[:unit_code][0][:unit_name]+service_params[:service_code])})
+   end
     respond_to do |format|
       if @service.save
         format.html { redirect_to @service, notice: 'Service was successfully created.' }
