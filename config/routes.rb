@@ -14,7 +14,7 @@ Rails.application.routes.draw do
   get 'account_resource_mappings/destroy'
 
   resources :users
-  resources :heirarchies
+  resources :roles
   resources :skills
   resources :resources
   resources :services

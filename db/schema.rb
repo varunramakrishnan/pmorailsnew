@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160407045026) do
+ActiveRecord::Schema.define(version: 20160407064745) do
 
   create_table "account_resource_mappings", force: :cascade do |t|
     t.integer  "resource_id",       limit: 4
@@ -58,12 +58,6 @@ ActiveRecord::Schema.define(version: 20160407045026) do
     t.string   "anticipated_start_date", limit: 255
   end
 
-  create_table "heirarchies", force: :cascade do |t|
-    t.string   "heirarchy_name", limit: 255
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
-  end
-
   create_table "organisational_unit_service_mappings", force: :cascade do |t|
     t.integer  "organisational_unit_id", limit: 4
     t.integer  "service_id",             limit: 4
@@ -92,6 +86,13 @@ ActiveRecord::Schema.define(version: 20160407045026) do
     t.integer  "heirarchy_id",  limit: 4
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
+  end
+
+  create_table "roles", force: :cascade do |t|
+    t.string   "role_name",    limit: 255
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+    t.integer  "heirarchy_id", limit: 4
   end
 
   create_table "services", force: :cascade do |t|
