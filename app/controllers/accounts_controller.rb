@@ -33,19 +33,20 @@ class AccountsController < ApplicationController
     found = Account.find_by_account_name account_params[:account_name]
     saved=0
     if found
-      @account = Account.find_by_account_name(account_params[:account_name]).update(account_params)
+      account = Account.find_by_account_name(account_params[:account_name]).update(account_params)
+      des = AccountServiceMapping.where(account_id: found.id).all.destroy_all
       saved=1
     else
-      @account = Account.new(account_params)  
+      # account = Account.new(account_params)  
+        account = Account.create({account_name:account_params[:account_name],organisational_unit_id: account_params[:organisational_unit_id], start_date: account_params[:start_date], end_date: account_params[:end_date], resource_needed: account_params[:resource_needed], resource_allocated: account_params[:resource_allocated], resource_id: account_params[:resource_id], status: account_params[:status],  request_type: account_params[:request_type], region: account_params[:region], location: account_params[:location], contract_type: account_params[:contract_type], customer_contact: account_params[:customer_contact], other_persons: account_params[:other_persons], other_sales_email: account_params[:other_sales_email], sow_status: account_params[:sow_status], comments: account_params[:comments], anticipated_value: account_params[:anticipated_value] })  
       saved=1
     end
     #respond_to do |format|
       if saved
         res = Account.find_by_account_name account_params[:account_name]
-        AccountServiceMapping.where(account_id: res.id).all.destroy_all
         test=params[:sermodel].to_a
         test.each do |s| 
-          AccountServiceMapping.create({account_id: res.id, service_id: s[:id]})
+           AccountServiceMapping.create({account_id: res.id, service_id: s[:id]})
         end
        # format.html { redirect_to @account, notice: 'Account was successfully created.' }
        #format.html { render :new }
@@ -91,6 +92,6 @@ class AccountsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def account_params
-      params.require(:account).permit(:account_name, :organisational_unit_id, :start_date, :end_date, :resource_needed, :resource_allocated, :resource_id, :status, :sermodel, :request_type, :region, :location, :contact_type, :customer_contact, :sales_person_others, :sales_email, :sow_status, :comments, :anticipated_value, :anticipated_value_currency )
+      params.require(:account).permit(:account_name, :organisational_unit_id, :start_date, :end_date, :resource_needed, :resource_allocated, :resource_id, :status, :sermodel, :request_type, :region, :location, :contract_type, :customer_contact, :other_persons, :other_sales_email, :sow_status, :comments, :anticipated_value, :anticipated_value_currency )
     end
 end

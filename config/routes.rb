@@ -30,6 +30,7 @@ Rails.application.routes.draw do
   get 'mapped-resources/:id' => 'account_resource_mappings#mappedresources'
   post 'account-details' => 'resources#accountdetails'
   post 'resources-dates' => 'resources#resourcedates'
+  post 'skill-dates' => 'resources#skilldates'
   post 'freeresources' => 'resources#freeresources'
   get 'allfiltered-resources/:id' => 'resources#allfiltered'
   post 'disenresourcedates' => 'resources#disenresourcedates'

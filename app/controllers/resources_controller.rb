@@ -104,16 +104,18 @@ class ResourcesController < ApplicationController
   def edit
   end
 
-  # POST /resources
-  # POST /resources.json
 
   def findmanagers
-    heirarchy=Heirarchy.where(heirarchy_name: "Project Manager").pluck(:id)
+    heirarchy=Role.where(role_name: "Project Manager").pluck(:heirarchy_id)
     res = Resource.where(heirarchy_id: heirarchy)
     render json: {success: res }
   end
+
+  # POST /resources
+  # POST /resources.json
   def create
-    @resource = Resource.new(resource_params)
+    role=Role.find_by_heirarchy_id resource_params[:heirarchy_id]
+    @resource = Resource.create({employee_id: resource_params[:employee_id],employee_name: resource_params[:employee_name], heirarchy_id: resource_params[:heirarchy_id],role:  role.role_name})
     #skill = Skill.find(params[:skill])
     respond_to do |format|
       if @resource.save
@@ -213,15 +215,64 @@ def resourcedates
         results=[]
         resources = res_params[:resources].split(",")
         resources.each do |resource|
+          hashes = Hash.new
           accountresource = AccountResourceMapping.where(resource_id: resource).all
                 accountresource.each do |ser|
                 resname=Resource.find(ser.resource_id).employee_name
                     values = ser.dates[1,ser.dates.length-2].split(",")
                           values.each do |value|
-                          results << {title: resname, start: value}
-                     end
+                                  if hashes.key?(value)
+                                    newval=hashes[value]+ser.percentage_loaded.to_i
+                                    hashes[value]= newval  
+                                  else
+                                    hashes[value]= ser.percentage_loaded.to_i     
+                                 end
+                           results << {title: resname + " "+ hashes[value].to_s, start: value}
+                          end
+                          # hashes.each do |h,v|
+                          #   results << {title: resname + " "+ v.to_s, start: h}
+                          # end  
+
                 end
         end
+      render json: results
+    end
+
+#POST skilldates
+  #POST skilldates.json
+
+    def skilldates
+        success = 0
+        results=[]
+        resources=[]
+        skills = ski_params[:skills].split(",")
+        skills.each do |skill|
+          res=ResourceSkillMapping.where(skill_id: skill).all
+          res.each do |r|
+            unless resources.include?(r.resource_id)
+                  resources<<r.resource_id
+            end
+          end  
+
+        end
+                resources.each do |resource|
+                  hashes = Hash.new
+                  accountresource = AccountResourceMapping.where(resource_id: resource).all
+                        accountresource.each do |ser|
+                        resname=Resource.find(ser.resource_id).employee_name
+                            values = ser.dates[1,ser.dates.length-2].split(",")
+                                  values.each do |value|
+                                    if hashes.key?(value)
+                                    newval=hashes[value]+ser.percentage_loaded.to_i
+                                    hashes[value]= newval  
+                                  else
+                                    hashes[value]= ser.percentage_loaded.to_i     
+                                 end
+                           results << {title: resname + " "+ hashes[value].to_s, start: value}
+                                    # results << {title: resname, start: value}
+                                  end
+                        end
+                end
       render json: results
     end
   #POST disenresourcedates
@@ -467,6 +518,9 @@ def resourcedates
     end
     def res_params
       params.permit(:resources)
+    end
+    def ski_params
+      params.permit(:skills)
     end
     def new_params
       params.require(:resources).permit(:id, :account)
