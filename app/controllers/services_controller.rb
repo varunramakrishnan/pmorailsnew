@@ -11,6 +11,7 @@ class ServicesController < ApplicationController
   # GET /services/1
   # GET /services/1.json
   def show
+       @service = Service.find(params[:id])
   end
 
   # GET /services/new
@@ -28,8 +29,9 @@ class ServicesController < ApplicationController
     @service = Service.new(service_params)
     if @service.save
     ser=Service.find_by_service_name service_params[:service_name]
-    OrganisationalUnitServiceMapping.create({organisational_unit_id: params[:unit_code][0][:id].to_i, service_id: ser.id})
-    Skill.create({skill_type: params[:unit_code][0][:unit_name],skill_name: service_params[:service_name],skill_code: (params[:unit_code][0][:unit_name]+service_params[:service_code])})
+    OrganisationalUnitServiceMapping.create({organisational_unit_id: params[:unit_code].to_i, service_id: ser.id})
+    ou=OrganisationalUnit.find(params[:unit_code].to_i)
+    Skill.create({skill_type: ou.unit_name,skill_name: service_params[:service_name],skill_code: (ou.unit_name+service_params[:service_code])})
    end
     respond_to do |format|
       if @service.save
@@ -46,7 +48,16 @@ class ServicesController < ApplicationController
   # PATCH/PUT /services/1.json
   def update
     respond_to do |format|
+        serv=Service.find(params[:id])
+        Skill.where(skill_name: serv.service_name).destroy_all
       if @service.update(service_params)
+        ser=Service.find(params[:id])
+        OrganisationalUnitServiceMapping.where(service_id: params[:id]).destroy_all
+        OrganisationalUnitServiceMapping.create({organisational_unit_id: params[:unit_code].to_i, service_id: params[:id]})
+        ou=OrganisationalUnit.find(params[:unit_code].to_i)
+        # s=Skill.where(skill_name: service_params[:service_name])
+        # Skill.update(s.pluck(:id)[0],:skill_name => service_params[:service_name],:skill_code => (ou.unit_name+service_params[:service_code]),:skill_type =>  ou.unit_name)
+        Skill.create({skill_type: ou.unit_name,skill_name: service_params[:service_name],skill_code: (ou.unit_name+service_params[:service_code])})
         format.html { redirect_to @service, notice: 'Service was successfully updated.' }
         format.json { render :show, status: :ok, location: @service }
       else

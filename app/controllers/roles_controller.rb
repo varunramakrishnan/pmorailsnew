@@ -46,7 +46,7 @@ class RolesController < ApplicationController
         format.json { render :show, status: :ok, location: @role }
       else
         format.html { render :edit }
-        format.json { render json: @role.errors, status: :unprocessable_entity }
+        format.json { render json: {error: @role.errors } }
       end
     end
   end
