@@ -7,7 +7,11 @@ class AccountsController < ApplicationController
     accounts = Account.all
     result = []
     accounts.each do |res|
-      man = Resource.find(res.resource_id).employee_name;
+      if res.resource_id
+        man = Resource.find(res.resource_id).employee_name;
+      else
+        man = "Null"
+      end  
       result << {id: res.id, account_name: res.account_name, organisational_unit_name: res.organisational_unit.unit_name, manager: man, resource_needed: res.resource_needed, status: res.status, services: res.services.collect(&:service_name).join(",")}
     end
     render json: result
