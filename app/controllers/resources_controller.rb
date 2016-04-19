@@ -114,7 +114,7 @@ class ResourcesController < ApplicationController
   # POST /resources
   # POST /resources.json
   def create
-    role=Role.find_by_heirarchy_id resource_params[:heirarchy_id]
+    role=Role.find(resource_params[:heirarchy_id])
     @resource = Resource.create({employee_id: resource_params[:employee_id],employee_name: resource_params[:employee_name], heirarchy_id: resource_params[:heirarchy_id],role:  role.role_name})
     #skill = Skill.find(params[:skill])
     respond_to do |format|
