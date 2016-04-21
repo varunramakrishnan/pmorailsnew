@@ -12,7 +12,8 @@ class AccountsController < ApplicationController
       else
         man = "Null"
       end  
-      result << {id: res.id, account_name: res.account_name, organisational_unit_name: res.organisational_unit.unit_name, manager: man, resource_needed: res.resource_needed, status: res.status, services: res.services.collect(&:service_name).join(",")}
+      # result << {id: res.id, account_name: res.account_name, organisational_unit_name: res.organisational_unit.unit_name, manager: man, resource_needed: res.resource_needed, status: res.status, services: res.services.collect(&:service_name).join(",")}
+      result << {id: res.id, account_name: res.account_name, organisational_unit_name: res.organisational_unit.unit_name, manager: man, resource_needed: res.resource_needed, status: res.status, services: res.services.collect(&:service_name).join(","),start_date: res.start_date, end_date: res.end_date, resource_needed: res.resource_needed, resource_allocated: res.resource_allocated, status: res.status,  request_type: res.request_type, region: res.region, location: res.location, contract_type: res.contract_type, customer_contact: res.customer_contact, other_persons: res.other_persons, other_sales_email: res.other_sales_email, sow_status: res.sow_status, comments: res.comments, anticipated_value: res.anticipated_value}
     end
     render json: result
   end

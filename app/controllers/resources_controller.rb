@@ -8,7 +8,8 @@ class ResourcesController < ApplicationController
     resources = Resource.all
     result = []
     resources.each do |res|
-      result << {id: res.id, employee_id: res.employee_id, employee_name: res.employee_name, heirarchy_id: res.heirarchy_id, role: res.role, skill: res.skills.collect(&:skill_name).join(","), skill_id: res.skills.collect(&:id)}
+      role=Role.where({id: res.heirarchy_id}).pluck(:role_name)[0]
+      result << {id: res.id, employee_id: res.employee_id, employee_name: res.employee_name, heirarchy_id: res.heirarchy_id, role: role, skill: res.skills.collect(&:skill_name).join(","), skill_id: res.skills.collect(&:id)}
     end
     render json: result
   end
