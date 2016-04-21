@@ -107,7 +107,7 @@ class ResourcesController < ApplicationController
 
 
   def findmanagers
-    heirarchy=Role.where(role_name: "Project Manager").pluck(:heirarchy_id)
+    heirarchy=Role.where(id: "1").pluck(:heirarchy_id)
     res = Resource.where(heirarchy_id: heirarchy)
     render json: {success: res }
   end
