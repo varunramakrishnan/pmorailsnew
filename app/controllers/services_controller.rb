@@ -11,7 +11,11 @@ class ServicesController < ApplicationController
   # GET /services/1
   # GET /services/1.json
   def show
-       @service = Service.find(params[:id])
+       service = Service.find(params[:id])
+       ouid=OrganisationalUnitServiceMapping.where(service_id: service.id)
+       result = {id: service.id, service_name: service.service_name, service_code: service.service_code,organisational_unit_id: ouid[0][:organisational_unit_id]}
+    render json: result
+       # @service["organisational_unit_id"]=OrganisationalUnitServiceMapping.where(service_id: @service.id);
   end
 
   # GET /services/new
@@ -57,7 +61,7 @@ class ServicesController < ApplicationController
         ou=OrganisationalUnit.find(params[:unit_code].to_i)
         # s=Skill.where(skill_name: service_params[:service_name])
         # Skill.update(s.pluck(:id)[0],:skill_name => service_params[:service_name],:skill_code => (ou.unit_name+service_params[:service_code]),:skill_type =>  ou.unit_name)
-        Skill.create({skill_type: ou.unit_name,skill_name: service_params[:service_name],skill_code: (ou.unit_name+service_params[:service_code])})
+        Skill.create({skill_type: ou.unit_name,skill_name: service_params[:service_name],skill_code: (ou.unit_code+service_params[:service_code])})
         format.html { redirect_to @service, notice: 'Service was successfully updated.' }
         format.json { render :show, status: :ok, location: @service }
       else
