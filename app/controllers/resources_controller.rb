@@ -66,7 +66,40 @@ class ResourcesController < ApplicationController
                 break
               end
              end
-             render json: {success: flag }
+             render json: {success: flag ,dates: values}
+  end
+
+  def newoccupied
+    newstr=[]
+      params[:resources].each do |para|
+        flag=1
+        values=[]
+              occupiedresource = AccountResourceMapping.where(resource_id: para[:resource_id]).where.not(account_id: para[:account_id]).all 
+              percentage_loaded=0
+              occupiedresource.each do |ser|
+                values = ser.dates[1,ser.dates.length-2].delete(' ').split(",")
+                percentage_loaded=percentage_loaded+ser[:percentage_loaded].to_i
+              end
+              # newVal=[]
+               datenew=para[:Dates].to_s
+                 inValues=datenew[1,datenew.length-2].delete(' ').split(",")
+                 inValues.each do |inv|
+                  
+                  if values.include?(inv) && (percentage_loaded+(para[:percentage_loaded].to_i) > 100)
+                    # if values.include?(inv)
+                    # newVal<<values.include?(inv)
+                    flag=0
+                    break
+                  end
+                  if flag==0
+                    break
+                  end
+                  # newstr << {resourceid: para[:resource_id], success: flag ,dates: values}
+                 end
+                  newstr << {resource_id: para[:resource_id],name:para[:name], success: flag ,dates: values}
+      end
+
+             render json: newstr
   end
 
 

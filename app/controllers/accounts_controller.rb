@@ -23,6 +23,17 @@ class AccountsController < ApplicationController
   def show
   end
 
+  def account_services
+    account = Account.find(params[:id])
+    ser = []
+    allservices=account.services
+    allservices.each do |serv|
+      ser << {id: serv.id}
+    end 
+    result = {service_id: ser}
+    render json: result
+  end  
+
   # GET /accounts/new
   def new
     @account = Account.new

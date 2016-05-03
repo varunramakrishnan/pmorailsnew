@@ -26,6 +26,7 @@ Rails.application.routes.draw do
   get 'service_units/:id' => 'organisational_units#services'
   get 'filtered-resources/:id' => 'resources#filtered'
   post 'resource-occupied' => 'resources#occupied'
+  post 'resource-new-occupied' => 'resources#newoccupied'
   get 'account-resources/:id' => 'account_resource_mappings#accountresources'
   get 'mapped-resources/:id' => 'account_resource_mappings#mappedresources'
   post 'account-details' => 'resources#accountdetails'
@@ -34,6 +35,7 @@ Rails.application.routes.draw do
   post 'freeresources' => 'resources#freeresources'
   get 'allfiltered-resources/:id' => 'resources#allfiltered'
   post 'disenresourcedates' => 'resources#disenresourcedates'
+  get 'accounts-services/:id' => 'accounts#account_services' 
   
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
