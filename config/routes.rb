@@ -32,6 +32,7 @@ Rails.application.routes.draw do
   post 'account-details' => 'resources#accountdetails'
   post 'resources-dates' => 'resources#resourcedates'
   post 'skill-dates' => 'resources#skilldates'
+  post 'new-dates' => 'resources#newdates'
   post 'freeresources' => 'resources#freeresources'
   get 'allfiltered-resources/:id' => 'resources#allfiltered'
   post 'disenresourcedates' => 'resources#disenresourcedates'

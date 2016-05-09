@@ -332,6 +332,108 @@ def resourcedates
           render json: {dis: nresults,ena: results}
 
     end
+  #POST new-dates
+  def newdates
+        success = 0
+        results=[]
+        resources=[]
+        accountresources=[]
+        skillresources=[]
+        resources = date_params[:resources].split(",").map{ |s| s.to_i }
+        accounts = date_params[:accounts].split(",")
+        accounts.each do |account|
+          accountresource = AccountResourceMapping.where(account_id: account).all
+          accountresource.each do |ser|
+            unless accountresources.include?(ser.resource_id)
+                  accountresources<<ser.resource_id
+            end
+          end
+        end
+        skills = date_params[:skills].split(",")
+        skills.each do |skill|
+          res=ResourceSkillMapping.where(skill_id: skill).all
+          res.each do |r|
+            unless skillresources.include?(r.resource_id)
+                  skillresources<<r.resource_id
+            end
+          end  
+
+        end
+        if(!accountresources.any?)
+          accountresources = Resource.all.collect(&:id)
+        end
+        if(!skillresources.any?)
+          skillresources = Resource.all.collect(&:id)
+        end
+        if(!resources.any?)
+          resources = Resource.all.collect(&:id)
+        end
+        intersectresources=accountresources & skillresources & resources
+                intersectresources.each do |resource|
+                  hashes = Hash.new
+                  if(accounts.any?)
+                  accountresource = AccountResourceMapping.where("account_id in (?)", accounts).where(resource_id: resource).all
+                  else
+                  accountresource = AccountResourceMapping.where(resource_id: resource).all
+                  end
+                        accountresource.each do |ser|
+                        # resname=Resource.find(ser.resource_id).employee_name
+                            values = ser.dates[1,ser.dates.length-2].delete(" ").split(",")
+                                        values.each do |value|
+                                          if hashes.key?(value)
+                                            newval=hashes[value]+ser.percentage_loaded.to_i
+                                            hashes[value]= newval  
+                                          else
+                                            hashes[value]= ser.percentage_loaded.to_i     
+                                          end
+                                          
+                                          # results << {title: resname, start: value}
+                                           # results << {title: resname + " "+ hashes[value].to_s, start: value}       
+                                        end
+                                  # results<< {title: values}  
+                                       hashes.each do |key, array|
+                                      # results << {title: resname + " "+ array.to_s, start: key}       
+                                         # results << {title: key , start: array}       
+                                       end
+                                       
+                        end
+                        resname=Resource.find(resource).employee_name
+                        hashes.each do |key, array|
+                                      results << {title: resname + " "+ array.to_s, start: key}       
+                                         # results << {title: key , start: array}       
+                                       end
+                            # results<< {title: hashes}
+                                    # results<< {title: accountresources.any?}  
+
+                end
+      render json: results
+      # render json: {"inter": intersectresources,"resources": resources,"accountresources": accountresources,"skillresources": skillresources}
+    end
+
+  #    def accountresources
+  #     accounts = date_params[:accounts].split(",")
+  #       accounts.each do |account|
+  #         accountresource = AccountResourceMapping.where(account_id: account).all
+  #         accountresource.each do |ser|
+  #           unless resources.include?(ser.resource_id)
+  #                 resources<<ser.resource_id
+  #           end
+  #         end
+  #       end
+     
+  #    result = []
+  #    arr = []
+  #     accountresource.each do |ser|
+  #       resname=Resource.find(ser.resource_id).employee_name
+  #       values = ser.dates[1,ser.dates.length-2].split(",")
+  #         values.each do |value|
+  #           puts value
+  #           result << {title: resname, start: value}
+  #         end
+       
+  #     end
+  #   render json: result    
+  # end 
       
   #GET freeresources
   #GET freeresources.json
@@ -548,6 +650,9 @@ def resourcedates
     end
     def res_params
       params.permit(:resources)
+    end
+    def date_params
+      params.permit(:resources,:skills,:accounts)
     end
     def ski_params
       params.permit(:skills)
