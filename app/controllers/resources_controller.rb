@@ -359,10 +359,10 @@ def resourcedates
           end  
 
         end
-        if(!accountresources.any?)
+        if(!accounts.any?)
           accountresources = Resource.all.collect(&:id)
         end
-        if(!skillresources.any?)
+        if(!skills.any?)
           skillresources = Resource.all.collect(&:id)
         end
         if(!resources.any?)
