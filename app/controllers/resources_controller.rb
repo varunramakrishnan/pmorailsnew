@@ -488,6 +488,17 @@ def resourcedates
             end
            end
         end
+        restwfivfmap=AccountResourceMapping.where(resource_id: res.id).where(percentage_loaded: 25).all
+        restwfivfmap.each do |resh|
+           newreshvalues = resh.dates[1,resh.dates.length-2].split(",")
+           newreshvalues.each do |newreshv|
+            newreshdate=DateTime.strptime(newreshv.to_f.to_s[0,10],'%s');
+            newreshdatedmy=newreshdate.strftime("%d-%m-%y")
+            if newtemarr.include?newreshdatedmy
+              newtemarr.delete(newreshdatedmy)
+            end
+           end
+        end
         newtemarr.each do |newv|
           newdreshdates=DateTime.strptime(newv,"%d-%m-%y")
           nreshd=newdreshdates.strftime("%s")
