@@ -55,6 +55,10 @@ class RolesController < ApplicationController
   # DELETE /roles/1.json
   def destroy
     @role.destroy
+    res =  Resource.where(heirarchy_id: params[:id]).all
+     res.each do |var|
+       Resource.update(var.id,:heirarchy_id => 0,:role => "")
+     end
     respond_to do |format|
       format.html { redirect_to roles_url, notice: 'Role was successfully destroyed.' }
       format.json { head :no_content }

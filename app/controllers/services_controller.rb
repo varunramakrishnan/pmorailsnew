@@ -13,7 +13,12 @@ class ServicesController < ApplicationController
   def show
        service = Service.find(params[:id])
        ouid=OrganisationalUnitServiceMapping.where(service_id: service.id)
-       result = {id: service.id, service_name: service.service_name, service_code: service.service_code,organisational_unit_id: ouid[0][:organisational_unit_id]}
+       if ouid[0]
+         orid=ouid[0][:organisational_unit_id]
+       else
+         orid = 0
+       end
+       result = {id: service.id, service_name: service.service_name, service_code: service.service_code,organisational_unit_id: orid}
     render json: result
        # @service["organisational_unit_id"]=OrganisationalUnitServiceMapping.where(service_id: @service.id);
   end

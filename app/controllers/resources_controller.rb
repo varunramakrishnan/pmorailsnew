@@ -637,6 +637,10 @@ def resourcedates
   # DELETE /resources/1.json
   def destroy
     @resource.destroy
+     acc =  Account.where(resource_id: params[:id]).all
+     acc.each do |var|
+       Account.update(var.id,:resource_id => "")
+     end
     respond_to do |format|
       format.html { redirect_to resources_url, notice: 'Resource was successfully destroyed.' }
       format.json { head :no_content }

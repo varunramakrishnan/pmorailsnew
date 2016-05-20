@@ -3,9 +3,6 @@ class User < ActiveRecord::Base
 	validates :password, :presence => true
 		def self.authenticate(username, password)
 	    user = User.find_by_username(username)
-	    puts(password)
-	    puts(username)
-	    puts(user.username)
 	    if user && user.password == password
 	      user
 	    else
