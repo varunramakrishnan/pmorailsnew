@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160421131824) do
+ActiveRecord::Schema.define(version: 20160520072252) do
 
   create_table "account_resource_mappings", force: :cascade do |t|
     t.integer  "resource_id",       limit: 4
@@ -57,6 +57,12 @@ ActiveRecord::Schema.define(version: 20160421131824) do
     t.string   "actual_value",           limit: 255
     t.string   "anticipated_start_date", limit: 255
     t.string   "account_code",           limit: 255
+  end
+
+  create_table "api_keys", force: :cascade do |t|
+    t.string   "access_token", limit: 255
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
   end
 
   create_table "organisational_unit_service_mappings", force: :cascade do |t|

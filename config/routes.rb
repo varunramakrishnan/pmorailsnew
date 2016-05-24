@@ -37,6 +37,7 @@ Rails.application.routes.draw do
   get 'allfiltered-resources/:id' => 'resources#allfiltered'
   post 'disenresourcedates' => 'resources#disenresourcedates'
   get 'accounts-services/:id' => 'accounts#account_services' 
+  post 'deletedependency' => 'application#deletedependency' 
   
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

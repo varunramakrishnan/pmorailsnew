@@ -1,4 +1,5 @@
 class AccountResourceMappingsController < ApplicationController
+  before_filter :restrict_access 
   def index
   end
 

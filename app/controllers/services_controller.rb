@@ -1,6 +1,6 @@
 class ServicesController < ApplicationController
   before_action :set_service, only: [:show, :edit, :update, :destroy]
-  
+  before_filter :restrict_access 
 
   # GET /services
   # GET /services.json

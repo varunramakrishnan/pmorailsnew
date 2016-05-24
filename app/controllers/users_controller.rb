@@ -22,9 +22,13 @@ class UsersController < ApplicationController
   end
   def search
     user = User.authenticate(params[:username], params[:password])
+  if user
+    access_token = SecureRandom.hex
+    ApiKey.create({access_token: access_token})
+  end
     respond_to do |format|
     if user
-      format.json { render json: {user: user } }
+      format.json { render json: {user: user,access_token: access_token } }
     #session[:user_id] = user.id
     #redirect_to root_url, :notice => "Logged in!"
     else

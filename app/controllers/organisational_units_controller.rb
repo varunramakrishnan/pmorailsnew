@@ -1,7 +1,6 @@
 class OrganisationalUnitsController < ApplicationController
   before_action :set_organisational_unit, only: [:show, :edit, :update, :destroy]
-  
-
+  before_filter :restrict_access 
   # GET /organisational_units
   # GET /organisational_units.json
   def index

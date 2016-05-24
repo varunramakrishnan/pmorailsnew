@@ -1,6 +1,6 @@
 class SkillsController < ApplicationController
   before_action :set_skill, only: [:show, :edit, :update, :destroy]
-  
+  before_filter :restrict_access 
 
   # GET /skills
   # GET /skills.json
@@ -67,7 +67,6 @@ class SkillsController < ApplicationController
     def set_skill
       @skill = Skill.find(params[:id])
     end
-
     # Never trust parameters from the scary internet, only allow the white list through.
     def skill_params
       params.require(:skill).permit(:skill_type, :skill_name, :skill_code)

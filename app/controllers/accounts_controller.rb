@@ -1,6 +1,6 @@
 class AccountsController < ApplicationController
   before_action :set_account, only: [:show, :edit, :update, :destroy]
-  
+  before_filter :restrict_access 
   # GET /accounts
   # GET /accounts.json
   def index
