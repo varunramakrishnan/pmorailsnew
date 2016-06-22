@@ -29,6 +29,7 @@ Rails.application.routes.draw do
   post 'resource-new-occupied' => 'resources#newoccupied'
   get 'account-resources/:id' => 'account_resource_mappings#accountresources'
   get 'mapped-resources/:id' => 'account_resource_mappings#mappedresources'
+  get 'model-resources/:id' => 'account_resource_mappings#modelresources'
   post 'account-details' => 'resources#accountdetails'
   post 'resources-dates' => 'resources#resourcedates'
   post 'skill-dates' => 'resources#skilldates'

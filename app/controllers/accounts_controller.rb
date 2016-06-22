@@ -1,6 +1,6 @@
 class AccountsController < ApplicationController
   before_action :set_account, only: [:show, :edit, :update, :destroy]
-  before_filter :restrict_access 
+  # before_filter :restrict_access 
   # GET /accounts
   # GET /accounts.json
   def index
@@ -13,7 +13,7 @@ class AccountsController < ApplicationController
         man = "Null"
       end  
       # result << {id: res.id, account_name: res.account_name, organisational_unit_name: res.organisational_unit.unit_name, manager: man, resource_needed: res.resource_needed, status: res.status, services: res.services.collect(&:service_name).join(",")}
-      result << {id: res.id, account_name: res.account_name,account_code: res.account_code, organisational_unit_code: res.organisational_unit.unit_code, manager: man, resource_needed: res.resource_needed, status: res.status, services: res.services.collect(&:service_code).join(","),start_date: res.start_date, end_date: res.end_date, resource_needed: res.resource_needed, resource_allocated: res.resource_allocated, status: res.status,  request_type: res.request_type, region: res.region, location: res.location, contract_type: res.contract_type, customer_contact: res.customer_contact, other_persons: res.other_persons, other_sales_email: res.other_sales_email, sow_status: res.sow_status, comments: res.comments, anticipated_value: res.anticipated_value}
+      result << {id: res.id, account_name: res.account_name,account_code: res.account_code, organisational_unit_code: res.organisational_unit.unit_code, manager: man, status: res.project_status, services: res.services.collect(&:service_code).join(","),   region: res.region, location: res.location, comments: res.comments,account_lob: res.account_lob,account_contact: res.account_contact,csm_contact: res.csm_contact,sales_contact: res.sales_contact,overall_health: res.overall_health}
     end
     render json: result
   end
@@ -26,11 +26,15 @@ class AccountsController < ApplicationController
   def account_services
     account = Account.find(params[:id])
     ser = []
+    allser = []
     allservices=account.services
     allservices.each do |serv|
-      ser << {id: serv.id}
+      ser << {id: serv.id,service_code: serv.service_code}
+      service = AccountServiceMapping.where(account_id: params[:id]).where(service_id: serv.id)
+      # service.service_code = serv.service_code
+      allser << service
     end 
-    result = {service_id: ser}
+    result = {service_id: ser,services: allser}
     render json: result
   end  
 
@@ -46,34 +50,32 @@ class AccountsController < ApplicationController
   # POST /accounts
   # POST /accounts.json
   def create
-    found = Account.find_by_account_name account_params[:account_name]
-    saved=0
-    if found
-      account = Account.find_by_account_name(account_params[:account_name]).update(account_params)
-      des = AccountServiceMapping.where(account_id: found.id).all.destroy_all
-      saved=1
-    else
-      # account = Account.new(account_params)  
-      account = Account.create({account_name:account_params[:account_name],account_code:account_params[:account_code],organisational_unit_id: account_params[:organisational_unit_id], start_date: account_params[:start_date], end_date: account_params[:end_date], resource_needed: account_params[:resource_needed], resource_allocated: account_params[:resource_allocated], resource_id: account_params[:resource_id], status: account_params[:status],  request_type: account_params[:request_type], region: account_params[:region], location: account_params[:location], contract_type: account_params[:contract_type], customer_contact: account_params[:customer_contact], other_persons: account_params[:other_persons], other_sales_email: account_params[:other_sales_email], sow_status: account_params[:sow_status], comments: account_params[:comments], anticipated_value: account_params[:anticipated_value] })  
-      saved=1
-    end
-    #respond_to do |format|
+    # account_services=params[:services].to_a
+    # render json: account_services
+      my=[]
+     found = Account.find_by_account_name account_params[:account_name]
+     saved=0
+     if found
+       account = Account.find_by_account_name(account_params[:account_name]).update(account_params)
+       des = AccountServiceMapping.where(account_id: found.id).all.destroy_all
+       saved=1
+     else
+      account = Account.create({account_name:account_params[:account_name],account_code:account_params[:account_code],organisational_unit_id: account_params[:organisational_unit_id], resource_id: account_params[:resource_id], project_status: account_params[:project_status],  region: account_params[:region], location: account_params[:location], csm_contact: account_params[:csm_contact], sales_contact: account_params[:sales_contact], overall_health: account_params[:overall_health], account_lob: account_params[:account_lob], comments: account_params[:comments], account_contact: account_params[:account_contact] })  
+       saved=1
+     end
       if saved
         res = Account.find_by_account_name account_params[:account_name]
-        test=params[:sermodel].to_a
-        test.each do |s| 
-           AccountServiceMapping.create({account_id: res.id, service_id: s[:id]})
-        end
-       # format.html { redirect_to @account, notice: 'Account was successfully created.' }
-       #format.html { render :new }
-        #format.json { render :show, status: :created, location: saved }
-        render json: saved
+        account_services=params[:services].to_a
+        # test=params[:sermodel].to_a
+         account_services.each do |s| 
+            AccountServiceMapping.create({account_id: res.id, service_id: s[:id],start_date: s[:start_date],end_date: s[:end_date],request_date: s[:request_date],sow_signed_date: s[:sow_signed_date],no_of_people_needed: s[:no_of_people_needed],no_of_people_allocated: s[:no_of_people_allocated],contract_type: s[:contract_type],project_status: s[:project_status],sow_status: s[:sow_status],currency: s[:anticipated_value_currency],anticipated_value: s[:anticipated_value],actual_value: s[:actual_value],anticipated_usd_value: s[:anticipated_usd_value],actual_usd_value: s[:actual_usd_value],health: s[:health]})
+         end
+        # render json: account_services
+         render json: saved
       else
-       # format.html { render :new }
-        #format.json { render json: @account.errors, status: :unprocessable_entity }
-        render json: saved
+         render json: saved
       end
-    #end
+    # render json: saved
   end
 
   # PATCH/PUT /accounts/1
@@ -108,6 +110,6 @@ class AccountsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def account_params
-      params.require(:account).permit(:account_name,:account_code, :organisational_unit_id, :start_date, :end_date, :resource_needed, :resource_allocated, :resource_id, :status, :sermodel, :request_type, :region, :location, :contract_type, :customer_contact, :other_persons, :other_sales_email, :sow_status, :comments, :anticipated_value, :anticipated_value_currency )
+      params.require(:account).permit(:account_name,:account_code,:account_lob,:overall_health, :organisational_unit_id, :resource_id, :project_status, :sermodel,:services, :region, :location,  :csm_contact, :sales_contact, :account_contact, :comments )
     end
 end

@@ -69,30 +69,83 @@
                render json: {success: flag ,dates: values}
     end
 
+    # def newoccupied
+    #   newstr=[]
+    #     params[:resources].each do |para|
+    #       flag=1
+    #       values=[]
+    #             occupiedresource = AccountResourceMapping.where(resource_id: para[:resource_id]).where.not(account_id: para[:account_id]).all 
+    #             hashes = Hash.new
+    #             percentage_loaded=0
+    #             occupiedresource.each do |ser|
+    #               # newvalues=[]
+    #               newvalues=ser.dates[1,ser.dates.length-2].delete(' ').split(",")
+    #               newvalues.each do |nv|
+    #                 if hashes.key?(nv)
+    #                   hashes[nv]  =  hashes[nv] + ser[:percentage_loaded].to_i    
+    #                 else
+    #                   hashes[nv]  =   ser[:percentage_loaded].to_i
+    #                 end
+    #               end  
+    #               values = values + ser.dates[1,ser.dates.length-2].delete(' ').split(",")
+    #               percentage_loaded=percentage_loaded+ser[:percentage_loaded].to_i
+    #             end
+    #              datenew=para[:Dates].to_s
+    #                inValues=datenew[1,datenew.length-2].delete(' ').split(",")
+    #                inValues.each do |inv|
+                    
+    #                 # if values.include?(inv) && (percentage_loaded+(para[:percentage_loaded].to_i) > 100)
+    #                 if hashes.key?(inv) && (hashes[inv] +(para[:percentage_loaded].to_i) > 100)
+    #                   flag=0
+    #                   break
+    #                 end
+    #                 if flag==0
+    #                   break
+    #                 end
+    #                end
+    #                 newstr << {resource_id: para[:resource_id],name:para[:name], success: flag ,dates: values}
+    #                  # newstr << {resource_id: para[:resource_id],name:para[:name], success: flag ,dates: hashes}
+    #     end
+
+    #            render json: newstr
+    # end
     def newoccupied
       newstr=[]
-        params[:resources].each do |para|
-          flag=1
-          values=[]
-                occupiedresource = AccountResourceMapping.where(resource_id: para[:resource_id]).where.not(account_id: para[:account_id]).all 
+        params[:resources].each do |k,para|
+                flag=1
+                values=[]
+                occupiedresource = AccountResourceMapping.where(resource_id: k).where.not(account_id:  params[:account_id]).all 
+                hashes = Hash.new
                 percentage_loaded=0
                 occupiedresource.each do |ser|
-                  values = values + ser.dates[1,ser.dates.length-2].delete(' ').split(",")
-                  percentage_loaded=percentage_loaded+ser[:percentage_loaded].to_i
+                  newvalues=ser.dates[1,ser.dates.length-2].delete(' ').split(",")
+                  newvalues.each do |nv|
+                    if hashes.key?(nv)
+                      hashes[nv]  =  hashes[nv] + ser[:percentage_loaded].to_i    
+                    else
+                      hashes[nv]  =   ser[:percentage_loaded].to_i
+                    end
+                  end  
+                   values = values + ser.dates[1,ser.dates.length-2].delete(' ').split(",")
+                  # percentage_loaded=percentage_loaded+ser[:percentage_loaded].to_i
                 end
-                 datenew=para[:Dates].to_s
-                   inValues=datenew[1,datenew.length-2].delete(' ').split(",")
-                   inValues.each do |inv|
-                    
-                    if values.include?(inv) && (percentage_loaded+(para[:percentage_loaded].to_i) > 100)
+                # datenew=para.to_s
+                # inValues=datenew[1,datenew.length-2].delete(' ').split(",")
+                para.each do |pa,pav|
+                  if hashes.key?(pa) && (hashes[pa] +(pav.to_i) > 100)
                       flag=0
                       break
                     end
                     if flag==0
                       break
                     end
-                   end
-                    newstr << {resource_id: para[:resource_id],name:para[:name], success: flag ,dates: values}
+                end 
+                name = Resource.find(k).employee_name
+                params[:service_ids][k].each do |value|
+                  newstr << {resource_id: k,name: name,service_id: value, success: flag ,dates: values.uniq }
+                end  
+
+          # newstr << {resource_id: k,name:"test", success: flag ,dates: values}
         end
 
                render json: newstr
@@ -171,7 +224,8 @@
           i=0
           message=inValues=arr=[]
           account = Account.find(params[:account][:id])
-          updated = Account.update(params[:account][:id], :start_date => params[:account][:minEndDate], :end_date => params[:account][:maxEndDate])
+          # updated = Account.update(params[:account][:id], :start_date => params[:account][:minEndDate], :end_date => params[:account][:maxEndDate])
+          updated=1
           del=AccountResourceMapping.where(account_id: params[:account][:id]).all
             if del
               AccountResourceMapping.where(account_id: params[:account][:id]).all.destroy_all
@@ -180,9 +234,9 @@
           par = params[:account][:resources].to_a
           par.each do |s|
             resourcemap=AccountResourceMapping.where(resource_id: s[:resource_id]).where.not(account_id: params[:account][:id]).all
-            update=AccountResourceMapping.where(resource_id: s[:resource_id]).where(account_id: params[:account][:id]).all
+            update=AccountResourceMapping.where(resource_id: s[:resource_id]).where(service_id: s[:service_id]).where(account_id: params[:account][:id]).all
             if update
-              AccountResourceMapping.where(resource_id: s[:resource_id]).where(account_id: params[:account][:id]).all.destroy_all
+              AccountResourceMapping.where(resource_id: s[:resource_id]).where(service_id: s[:service_id]).where(account_id: params[:account][:id]).all.destroy_all
             end 
             arr=[]
             hashes = Hash.new
@@ -225,7 +279,7 @@
                # end
             end
                 if i==0
-                      ressave = AccountResourceMapping.create({resource_id: s[:resource_id], account_id: params[:account][:id] , percentage_loaded: s[:percentage_loaded],dates: s[:Dates]})                
+                      ressave = AccountResourceMapping.create({resource_id: s[:resource_id],service_id: s[:service_id], account_id: params[:account][:id] , percentage_loaded: s[:percentage_loaded],dates: s[:Dates]})                
                      # ressave =1
                      if ressave
                       message << (Resource.find(s[:resource_id]).employee_name).to_s+" has  been added to the project"
@@ -338,34 +392,30 @@
         enddate=params[:enddate]
         stdate=DateTime.strptime(startdate[0,10],'%s');
         endate=DateTime.strptime(enddate[0,10],'%s');
-        # newtemporaryarr=[]
-        #   newdate=stdate
-        #   while ((newdate >= stdate) && (newdate <= endate)) do
-        #           newd=newdate.strftime("%d-%m-%y")
-        #           unless newtemporaryarr.include?(newd)
-        #             newtemporaryarr<<newd
-        #           end
-        #           newdate = newdate + 1.day
-        #   end
-        # accountHash=Hash.new
-        # allAcc=AccountResourceMapping.all
-        # allAcc.each do |acVar|
-        #   if accountHash.key?(acVar.resource_id)
-        #     nwval=accountHash[acVar.resource_id]+Account.find(acVar.account_id).account_name.to_s  + " " + acVar.percentage_loaded.to_s + " | "  
-        #     accountHash[acVar.resource_id]= nwval  
-        #   else
-        #     accountHash[acVar.resource_id]= Account.find(acVar.account_id).account_name.to_s  + " " + acVar.percentage_loaded.to_s   + " | " 
-        #   end
-        # end
+        
                   
           success = 0
           results=[]
           resources=[]
           accountresources=[]
+          serresources=[]
           skillresources=[]
           resources = date_params[:resources].split(",").map{ |s| s.to_i }
+          services = date_params[:services].split(",")
           accounts = date_params[:accounts].split(",")
-          accounts.each do |account|
+          if(services.any?)
+            flag=0
+            services.each do |service|
+              flag=1
+            serresource = AccountResourceMapping.where(account_id: accounts[0],service_id: service).all
+            serresource.each do |serv|
+              unless accountresources.include?(serv.resource_id)
+                    accountresources<<serv.resource_id
+              end
+            end
+          end
+          else
+            accounts.each do |account|
             accountresource = AccountResourceMapping.where(account_id: account).all
             accountresource.each do |ser|
               unless accountresources.include?(ser.resource_id)
@@ -373,6 +423,9 @@
               end
             end
           end
+          end
+          
+          
           skills = date_params[:skills].split(",")
           skills.each do |skill|
             res=ResourceSkillMapping.where(skill_id: skill).all
@@ -396,11 +449,16 @@
                   intersectresources.each do |resource|
                     hashes = Hash.new
                     accountHash=Hash.new
-                    if(accounts.any?)
-                    accountresource = AccountResourceMapping.where("account_id in (?)", accounts).where(resource_id: resource).all
+                    if (services.any?)
+                      accountresource = AccountResourceMapping.where("account_id in (?)", accounts).where("service_id in (?)", services).where(resource_id: resource).all
                     else
-                    accountresource = AccountResourceMapping.where(resource_id: resource).all
+                      if(accounts.any?)
+                      accountresource = AccountResourceMapping.where("account_id in (?)", accounts).where(resource_id: resource).all
+                      else
+                      accountresource = AccountResourceMapping.where(resource_id: resource).all
+                      end
                     end
+                    
                           accountresource.each do |ser|
                               values = ser.dates[1,ser.dates.length-2].delete(" ").split(",")
                                           values.each do |value|
@@ -454,7 +512,7 @@
 
                   end
         render json: results
-        # render json: {"inter": intersectresources,"resources": resources,"accountresources": accountresources,"skillresources": skillresources}
+         # render json: {"inter": intersectresources,"resources": resources,"accountresources": accountresources,"skillresources": skillresources, "serres": serresource}
       end
 
     #    def accountresources
@@ -722,7 +780,7 @@
         params.permit(:resources)
       end
       def date_params
-        params.permit(:resources,:skills,:accounts)
+        params.permit(:resources,:skills,:accounts,:services)
       end
       def ski_params
         params.permit(:skills)
