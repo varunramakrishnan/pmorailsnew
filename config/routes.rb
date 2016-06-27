@@ -35,6 +35,7 @@ Rails.application.routes.draw do
   post 'skill-dates' => 'resources#skilldates'
   post 'new-dates' => 'resources#newdates'
   post 'freeresources' => 'resources#freeresources'
+  post 'get-service-dates' => 'accounts#servicedates' # get service start date and end date from db
   get 'allfiltered-resources/:id' => 'resources#allfiltered'
   post 'disenresourcedates' => 'resources#disenresourcedates'
   get 'accounts-services/:id' => 'accounts#account_services' 

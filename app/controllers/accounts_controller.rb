@@ -101,6 +101,11 @@ class AccountsController < ApplicationController
       format.json { head :no_content }
     end
   end
+  # get service startdate and end date from db
+  def servicedates
+    account = AccountServiceMapping.where(account_id: params[:account_id]).where(service_id:params[:service_id])
+    render json: account
+  end  
 
   private
     # Use callbacks to share common setup or constraints between actions.
