@@ -234,9 +234,9 @@
           par = params[:account][:resources].to_a
           par.each do |s|
             resourcemap=AccountResourceMapping.where(resource_id: s[:resource_id]).where.not(account_id: params[:account][:id]).all
-            update=AccountResourceMapping.where(resource_id: s[:resource_id]).where(service_id: s[:service_id]).where(account_id: params[:account][:id]).all
+            update=AccountResourceMapping.where(resource_id: s[:resource_id]).where(service_id: s[:service_id]).where(account_id: params[:account][:id]).where(project_id: s[:project_id]).all
             if update
-              AccountResourceMapping.where(resource_id: s[:resource_id]).where(service_id: s[:service_id]).where(account_id: params[:account][:id]).all.destroy_all
+              AccountResourceMapping.where(resource_id: s[:resource_id]).where(service_id: s[:service_id]).where(account_id: params[:account][:id]).where(project_id: s[:project_id]).all.destroy_all
             end 
             arr=[]
             hashes = Hash.new
@@ -279,7 +279,7 @@
                # end
             end
                 if i==0
-                      ressave = AccountResourceMapping.create({resource_id: s[:resource_id],service_id: s[:service_id], account_id: params[:account][:id] , percentage_loaded: s[:percentage_loaded],dates: s[:Dates]})                
+                      ressave = AccountResourceMapping.create({resource_id: s[:resource_id],service_id: s[:service_id],project_id: s[:project_id], account_id: params[:account][:id] , percentage_loaded: s[:percentage_loaded],dates: s[:Dates]})                
                      # ressave =1
                      if ressave
                       message << (Resource.find(s[:resource_id]).employee_name).to_s+" has  been added to the project"
