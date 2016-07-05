@@ -1,5 +1,5 @@
 class AccountResourceMappingsController < ApplicationController
-  before_filter :restrict_access 
+  # before_filter :restrict_access 
   def index
   end
 
@@ -78,4 +78,32 @@ class AccountResourceMappingsController < ApplicationController
       end
     render json: result    
   end 
+  def check_availablity
+    res=[]
+    # resource = AccountResourceMapping.where.not(account_id: params[:account_id]).all
+     acc = params[:check]
+    params[:check].each do |key,value|
+      value.each do |k,v|
+        resource = AccountResourceMapping.where.not(account_id: params[:account_id]).where(resource_id: k).all
+        # res<<resource
+        per=0
+        resource.each do |r|
+          datearray = r[:dates][1,r[:dates].length-2].delete(' ').split(",")
+          result = datearray.include?(key)
+          if result
+            per = per + r[:percentage_loaded]
+          end
+          res<<per  
+        end  
+      end 
+      # res<<key
+    end  
+    # res<<arm_params[:check]
+    render json:res
+  end  
+  # private
+  #   # Use callbacks to share common setup or constraints between actions.
+  #   def arm_params
+  #     params.require(:arm).permit(:check,:account_id)
+  #   end
 end

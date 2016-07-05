@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :time_tracks
   resources :projects
   get 'account_resource_mappings/index'
 
@@ -42,7 +43,7 @@ Rails.application.routes.draw do
   get 'accounts-services/:id' => 'accounts#account_services' 
   post 'deletedependency' => 'application#deletedependency' 
   post 'filtered-projects' => 'projects#filteredprojects' 
-  
+  post 'check-availablity' => 'account_resource_mappings#check_availablity'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
