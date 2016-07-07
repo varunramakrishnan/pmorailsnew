@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Resource:</strong>
+  <%= @time_track.resource_id %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= @time_track.user_id %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @time_track.project_id %>
+</p>
+
+<p>
+  <strong>Date:</strong>
+  <%= @time_track.date %>
+</p>
+
+<p>
+  <strong>Status:</strong>
+  <%= @time_track.status %>
+</p>
+
+<%= link_to 'Edit', edit_time_track_path(@time_track) %> |
+<%= link_to 'Back', time_tracks_path %>

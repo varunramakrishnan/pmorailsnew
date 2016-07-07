@@ -18,7 +18,7 @@ class ServicesController < ApplicationController
        else
          orid = 0
        end
-       result = {id: service.id, service_name: service.service_name, service_code: service.service_code,organisational_unit_id: orid}
+       result = {id: service.id, service_name: service.service_name, service_code: service.service_code,organisational_unit_id: orid , mapping_format: service.mapping_format}
     render json: result
        # @service["organisational_unit_id"]=OrganisationalUnitServiceMapping.where(service_id: @service.id);
   end
@@ -94,6 +94,6 @@ class ServicesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def service_params
-      params.require(:service).permit(:service_name, :service_code)
+      params.require(:service).permit(:service_name, :service_code, :mapping_format)
     end
 end

@@ -1,0 +1,35 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Time Tracks</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Resource</th>
+      <th>User</th>
+      <th>Project</th>
+      <th>Date</th>
+      <th>Status</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @time_tracks.each do |time_track| %>
+      <tr>
+        <td><%= time_track.resource_id %></td>
+        <td><%= time_track.user_id %></td>
+        <td><%= time_track.project_id %></td>
+        <td><%= time_track.date %></td>
+        <td><%= time_track.status %></td>
+        <td><%= link_to 'Show', time_track %></td>
+        <td><%= link_to 'Edit', edit_time_track_path(time_track) %></td>
+        <td><%= link_to 'Destroy', time_track, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Time track', new_time_track_path %>

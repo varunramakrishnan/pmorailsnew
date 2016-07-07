@@ -29,7 +29,7 @@ class AccountsController < ApplicationController
     allser = []
     allservices=account.services
     allservices.each do |serv|
-      ser << {id: serv.id,service_code: serv.service_code}
+      ser << {id: serv.id,service_code: serv.service_code,mapping_format: serv.mapping_format}
       service = AccountServiceMapping.where(account_id: params[:id]).where(service_id: serv.id)
       # service.service_code = serv.service_code
       allser << service
