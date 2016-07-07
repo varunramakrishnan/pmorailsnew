@@ -141,9 +141,11 @@
                     end
                 end 
                 name = Resource.find(k).employee_name
+                if params[:service_ids][k]
                 params[:service_ids][k].each do |value|
                   newstr << {resource_id: k,name: name,service_id: value, success: flag ,dates: values.uniq }
-                end  
+                end 
+                end 
 
           # newstr << {resource_id: k,name:"test", success: flag ,dates: values}
         end
@@ -217,8 +219,8 @@
       end
     end
 
-    #POST accountdetails
-    #POST accountdetails.json
+    # POST accountdetails
+    # POST accountdetails.json
       def accountdetails
           success = 0
           i=0
@@ -234,10 +236,10 @@
           par = params[:account][:resources].to_a
           par.each do |s|
             resourcemap=AccountResourceMapping.where(resource_id: s[:resource_id]).where.not(account_id: params[:account][:id]).all
-            update=AccountResourceMapping.where(resource_id: s[:resource_id]).where(service_id: s[:service_id]).where(account_id: params[:account][:id]).where(project_id: s[:project_id]).all
-            if update
-              AccountResourceMapping.where(resource_id: s[:resource_id]).where(service_id: s[:service_id]).where(account_id: params[:account][:id]).where(project_id: s[:project_id]).all.destroy_all
-            end 
+            # update=AccountResourceMapping.where(resource_id: s[:resource_id]).where(service_id: s[:service_id]).where(account_id: params[:account][:id]).where(project_id: s[:project_id]).all
+            # if update
+            #   AccountResourceMapping.where(resource_id: s[:resource_id]).where(service_id: s[:service_id]).where(account_id: params[:account][:id]).where(project_id: s[:project_id]).all.destroy_all
+            # end 
             arr=[]
             hashes = Hash.new
             if resourcemap
@@ -291,6 +293,45 @@
 
         render json: message
       end
+
+
+
+
+
+
+
+
+
+
+
+      #####################
+ # def accountdetails
+ #          success = 0
+ #          i=0
+ #          message=inValues=arr=[]
+ #          account = Account.find(params[:account][:id])
+ #          # updated = Account.update(params[:account][:id], :start_date => params[:account][:minEndDate], :end_date => params[:account][:maxEndDate])
+ #          updated=1
+ #          del=AccountResourceMapping.where(account_id: params[:account][:id]).all
+ #            if del
+ #              AccountResourceMapping.where(account_id: params[:account][:id]).all.destroy_all
+ #            end
+ #        if updated
+ #          par = params[:account][:resources].to_a
+ #          par.each do |s|
+ #            resourcemap=AccountResourceMapping.where(resource_id: s[:resource_id]).where.not(account_id: params[:account][:id]).all
+ #                      ressave = AccountResourceMapping.create({resource_id: s[:resource_id],service_id: s[:service_id],project_id: s[:project_id], account_id: params[:account][:id] , percentage_loaded: s[:percentage_loaded],dates: s[:Dates]})                
+ #                     # ressave =1
+ #                     if ressave
+ #                      message << (Resource.find(s[:resource_id]).employee_name).to_s+" has  been added to the project"
+ #                     end
+            
+ #          end
+ #        end
+
+ #        render json: message
+ #      end
+      #####################
 
     #POST resourcedates
     #POST resourcedates.json
