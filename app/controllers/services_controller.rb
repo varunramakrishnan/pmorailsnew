@@ -40,7 +40,7 @@ class ServicesController < ApplicationController
     ser=Service.find_by_service_name service_params[:service_name]
     OrganisationalUnitServiceMapping.create({organisational_unit_id: params[:unit_code].to_i, service_id: ser.id})
     ou=OrganisationalUnit.find(params[:unit_code].to_i)
-    Skill.create({skill_type: ou.unit_name,skill_name: service_params[:service_name],skill_code: (ou.unit_code+service_params[:service_code])})
+    Skill.create({skill_type: ou.unit_code,skill_name: service_params[:service_name],skill_code: (ou.unit_code+service_params[:service_code])})
    end
     respond_to do |format|
       if @service.save
