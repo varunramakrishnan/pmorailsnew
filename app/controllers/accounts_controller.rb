@@ -38,6 +38,25 @@ class AccountsController < ApplicationController
     render json: result
   end  
 
+  def account_projects
+    if params[:sid] == "undefined"
+      pro = Project.where(account_id: params[:id])
+    else
+      pro = Project.where(account_id: params[:id],service_id: params[:sid])
+    end
+    projects=[]
+    pro.each do |pr|
+      owner=User.find(pr.createdBy).username
+      projects << {id: pr.id,project_code: pr.project_code,project_name: pr.project_name,owner:owner}
+      # service = AccountServiceMapping.where(account_id: params[:id]).where(service_id: serv.id)
+      # service.service_code = serv.service_code
+      # allser << service
+    end 
+    # result = {service_id: ser,services: allser}
+    render json: projects
+  end  
+  
+
   # GET /accounts/new
   def new
     @account = Account.new
@@ -68,7 +87,7 @@ class AccountsController < ApplicationController
         account_services=params[:services].to_a
         # test=params[:sermodel].to_a
          account_services.each do |s| 
-            AccountServiceMapping.create({account_id: res.id, service_id: s[:id],start_date: s[:start_date],end_date: s[:end_date],request_date: s[:request_date],sow_signed_date: s[:sow_signed_date],no_of_people_needed: s[:no_of_people_needed],no_of_people_allocated: s[:no_of_people_allocated],contract_type: s[:contract_type],project_status: s[:project_status],sow_status: s[:sow_status],currency: s[:anticipated_value_currency],anticipated_value: s[:anticipated_value],actual_value: s[:actual_value],anticipated_usd_value: s[:anticipated_usd_value],actual_usd_value: s[:actual_usd_value],health: s[:health]})
+            AccountServiceMapping.create({account_id: res.id, service_id: s[:id],start_date: s[:start_date],end_date: s[:end_date],request_date: s[:request_date],sow_signed_date: s[:sow_signed_date],no_of_people_needed: s[:no_of_people_needed],no_of_people_allocated: s[:no_of_people_allocated],contract_type: s[:contract_type],project_status: s[:project_status],sow_status: s[:sow_status],currency: s[:anticipated_value_currency],anticipated_value: s[:anticipated_value],actual_value: s[:actual_value],anticipated_usd_value: s[:anticipated_usd_value],actual_usd_value: s[:actual_usd_value],health: s[:health],comments: s[:comments],})
          end
         # render json: account_services
          render json: saved

@@ -41,6 +41,7 @@ Rails.application.routes.draw do
   get 'allfiltered-resources/:id' => 'resources#allfiltered'
   post 'disenresourcedates' => 'resources#disenresourcedates'
   get 'accounts-services/:id' => 'accounts#account_services' 
+  get 'accounts-projects/:id/:sid' => 'accounts#account_projects' 
   post 'deletedependency' => 'application#deletedependency' 
   post 'filtered-projects' => 'projects#filteredprojects' 
   post 'check-availablity' => 'account_resource_mappings#check_availablity'
