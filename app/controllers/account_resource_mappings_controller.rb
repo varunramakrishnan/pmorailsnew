@@ -43,6 +43,16 @@ class AccountResourceMappingsController < ApplicationController
       end
     render json: result  
   end
+  def delete_account_mapping 
+    success=0
+    del=AccountResourceMapping.where(account_id: params[:account][:id]).all
+            if del
+              AccountResourceMapping.where(account_id: params[:account][:id]).all.destroy_all
+              success=1
+            end
+    render json: success  
+  end
+  
 
   def modelresources 
     accountresource = AccountResourceMapping.where(account_id: params[:id]).all

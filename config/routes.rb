@@ -33,6 +33,7 @@ Rails.application.routes.draw do
   get 'mapped-resources/:id' => 'account_resource_mappings#mappedresources'
   get 'model-resources/:id' => 'account_resource_mappings#modelresources'
   post 'account-details' => 'resources#accountdetails'
+  post 'delete-account-mapping' => 'account_resource_mappings#delete_account_mapping'
   post 'resources-dates' => 'resources#resourcedates'
   post 'skill-dates' => 'resources#skilldates'
   post 'new-dates' => 'resources#newdates'

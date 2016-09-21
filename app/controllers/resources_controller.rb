@@ -504,13 +504,13 @@
                               values = ser.dates[1,ser.dates.length-2].delete(" ").split(",")
                                           values.each do |value|
                                             if hashes.key?(value)
-                                              newval=hashes[value]+ser.percentage_loaded.to_i
+                                              newval=hashes[value]+ser.percentage_loaded.to_f
                                               hashes[value]= newval  
-                                              nwval=accountHash[value]+Account.find(ser.account_id).account_code.to_s  + " - " + ser.percentage_loaded.to_s + "% | "  
+                                              nwval=accountHash[value]+Account.find(ser.account_id).account_code.to_s  + " - " + ser.percentage_loaded.to_f.to_s + "% | "  
                                               accountHash[value]= nwval  
                                             else
-                                              hashes[value]= ser.percentage_loaded.to_i  
-                                              accountHash[value]= Account.find(ser.account_id).account_code.to_s  + " - " + ser.percentage_loaded.to_s   + "% | " 
+                                              hashes[value]= ser.percentage_loaded.to_f  
+                                              accountHash[value]= Account.find(ser.account_id).account_code.to_s  + " - " + ser.percentage_loaded.to_f.to_s   + "% | " 
                                             end
                                           end
                                          # hashes.each do |key, array|
@@ -620,8 +620,30 @@
               end
              end
           end
+          resegtsmap=AccountResourceMapping.where(resource_id: res.id).where(percentage_loaded: 87.50).all
+          resegtsmap.each do |resh|
+             newreshvalues = resh.dates[1,resh.dates.length-2].split(",")
+             newreshvalues.each do |newreshv|
+              newreshdate=DateTime.strptime(newreshv.to_f.to_s[0,10],'%s');
+              newreshdatedmy=newreshdate.strftime("%d-%m-%y")
+              if newtemarr.include?newreshdatedmy
+                newtemarr.delete(newreshdatedmy)
+              end
+             end
+          end
           ressevfmap=AccountResourceMapping.where(resource_id: res.id).where(percentage_loaded: 75).all
           ressevfmap.each do |resh|
+             newreshvalues = resh.dates[1,resh.dates.length-2].split(",")
+             newreshvalues.each do |newreshv|
+              newreshdate=DateTime.strptime(newreshv.to_f.to_s[0,10],'%s');
+              newreshdatedmy=newreshdate.strftime("%d-%m-%y")
+              if newtemarr.include?newreshdatedmy
+                newtemarr.delete(newreshdatedmy)
+              end
+             end
+          end
+          ressixtmap=AccountResourceMapping.where(resource_id: res.id).where(percentage_loaded: 62.50).all
+          ressixtmap.each do |resh|
              newreshvalues = resh.dates[1,resh.dates.length-2].split(",")
              newreshvalues.each do |newreshv|
               newreshdate=DateTime.strptime(newreshv.to_f.to_s[0,10],'%s');
@@ -642,8 +664,30 @@
               end
              end
           end
+          resthrsmap=AccountResourceMapping.where(resource_id: res.id).where(percentage_loaded: 37.50).all
+          resthrsmap.each do |resh|
+             newreshvalues = resh.dates[1,resh.dates.length-2].split(",")
+             newreshvalues.each do |newreshv|
+              newreshdate=DateTime.strptime(newreshv.to_f.to_s[0,10],'%s');
+              newreshdatedmy=newreshdate.strftime("%d-%m-%y")
+              if newtemarr.include?newreshdatedmy
+                newtemarr.delete(newreshdatedmy)
+              end
+             end
+          end
           restwfivfmap=AccountResourceMapping.where(resource_id: res.id).where(percentage_loaded: 25).all
           restwfivfmap.each do |resh|
+             newreshvalues = resh.dates[1,resh.dates.length-2].split(",")
+             newreshvalues.each do |newreshv|
+              newreshdate=DateTime.strptime(newreshv.to_f.to_s[0,10],'%s');
+              newreshdatedmy=newreshdate.strftime("%d-%m-%y")
+              if newtemarr.include?newreshdatedmy
+                newtemarr.delete(newreshdatedmy)
+              end
+             end
+          end
+          restwfvmap=AccountResourceMapping.where(resource_id: res.id).where(percentage_loaded: 12.50).all
+          restwfvmap.each do |resh|
              newreshvalues = resh.dates[1,resh.dates.length-2].split(",")
              newreshvalues.each do |newreshv|
               newreshdate=DateTime.strptime(newreshv.to_f.to_s[0,10],'%s');
@@ -679,10 +723,10 @@
                vald=valdate.strftime("%d-%m-%y")
                 
                if hashes.key?(vald)
-                  newval=hashes[vald]+serv.percentage_loaded.to_i
+                  newval=hashes[vald]+serv.percentage_loaded.to_f
                  hashes[vald]= newval  
                 else
-                 hashes[vald]= serv.percentage_loaded.to_i     
+                 hashes[vald]= serv.percentage_loaded.to_f     
                end
                unless arr.include?(vald)
                   arr<<vald
@@ -695,7 +739,7 @@
                       news=newdatess.strftime("%s")
                       unless hashes[myarr] >=100
                         newstr=(100-hashes[myarr].to_f).to_s
-                        results << {title: (res.employee_name+(" (")+(newstr[0,newstr.length-2])+("%)")),start: (news+('000')),description:"|"}
+                        results << {title: (res.employee_name+(" (")+(newstr)+("%)")),start: (news+('000')),description:"|"}
                       end
                     end
 
