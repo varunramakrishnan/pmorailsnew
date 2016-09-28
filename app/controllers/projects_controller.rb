@@ -65,7 +65,7 @@ class ProjectsController < ApplicationController
   end
 
   def filteredprojects
-    pro = Project.where(service_id: params[:service_id])
+    pro = Project.where(service_id: params[:service_id],account_id: params[:account_id])
     render json: pro
   end  
 
