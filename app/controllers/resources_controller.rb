@@ -141,11 +141,14 @@
                     end
                 end 
                 name = Resource.find(k).employee_name
-                if params[:service_ids][k]
-                params[:service_ids][k].each do |value|
-                  newstr << {resource_id: k,name: name,service_id: value, success: flag ,dates: values.uniq }
-                end 
-                end 
+                #if params[:service_ids][k]
+                #params[:service_ids][k].each do |value|
+                #  newstr << {resource_id: k,name: name,service_id: value, success: flag ,dates: values.uniq }
+                #end 
+                #end
+                 # params[:resources].each do |k,para|
+                  newstr << {resource_id: k,name: name, success: flag ,dates: values.uniq }
+                 # end
 
           # newstr << {resource_id: k,name:"test", success: flag ,dates: values}
         end
@@ -538,16 +541,16 @@
                                               newtemporaryarr.delete(newreshdatedmy)
                                             end
 
-                                          results << {title: resname + " ("+ array.to_s+ "%) ", start: key,description: accountHash[key][0,accountHash[key].length-2],type: "filter"}
+                                          results << {title: resname + " ("+ array.to_s+ "%) ",perc: array.to_s, start: key,description: accountHash[key][0,accountHash[key].length-2],type: "filter"}
                                           if(array != 100)
-                                            results << {title: resname + " ("+ (100-array).to_s+ "%)", start: key,type: "free",description:""}       
+                                            results << {title: resname + " ("+ (100-array).to_s+ "%)",perc: (100-array).to_s , start: key,type: "free",description:""}       
                                           end
                                             
                                          end
                                           newtemporaryarr.each do |newv|
                                            newdreshdates=DateTime.strptime(newv,"%d-%m-%y")
                                            nreshd=newdreshdates.strftime("%s")
-                                           results << {title: resname+ " (100%) ",type: "free",start: (nreshd.to_s+('000')),description:""}
+                                           results << {title: resname+ " (100.0%) ",perc: "100.0",type: "free",start: (nreshd.to_s+('000')),description:""}
                                          end
                                             
 

@@ -79,10 +79,15 @@ class AccountResourceMappingsController < ApplicationController
      arr = []
       accountresource.each do |ser|
         resname=Resource.find(ser.resource_id).employee_name
+        if (ser.project_id != 0)
+          proname=Project.find(ser.project_id).project_code
+        else
+          proname=Service.find(ser.service_id).service_code
+        end
         values = ser.dates[1,ser.dates.length-2].split(",")
           values.each do |value|
             puts value
-            result << {title: resname, start: value}
+            result << {title: resname + "-" +proname+"-"+ser.percentage_loaded.to_s, start: value}
           end
        
       end
