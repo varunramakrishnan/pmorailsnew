@@ -29,6 +29,7 @@ class UsersController < ApplicationController
   # user.resource_id=1
   if user.employee_id
     resource=Resource.find_by_employee_id(user.employee_id)
+    employee_id = user.employee_id
       
     if resource
       resource_id = resource.id
@@ -36,13 +37,14 @@ class UsersController < ApplicationController
       resource_id = 0
     end
   else
+    employee_id = "admin"
     resource_id = 0
   end
   end
     
     respond_to do |format|
     if user
-      result = {id: user.id, username: user.username, employee_id: user.employee_id,resource_id: resource_id, role: user.role,created_at: user.created_at ,updated_at: user.updated_at}
+      result = {id: user.id, username: user.username, employee_id: employee_id,resource_id: resource_id, role: user.role,created_at: user.created_at ,updated_at: user.updated_at}
       format.json { render json: {user: result,access_token: access_token } }
     #session[:user_id] = user.id
     #redirect_to root_url, :notice => "Logged in!"
