@@ -93,6 +93,26 @@ class AccountResourceMappingsController < ApplicationController
       end
     render json: result    
   end 
+
+  def resource_projects
+    resourceprojects = AccountResourceMapping.where(resource_id: params[:id]).all
+    resourceArray = []
+    resourceprojects.each do |r|
+      project_name = Project.find(r.project_id).project_name
+      project_id = r.project_id
+      # dayHours = []
+      # temp = []
+      # inputValue = []
+      # tempLoop = []
+      # bool = []
+      status = r.status
+      resourceArray << {name: project_name,project_id: project_id,dayHours: [],temp: [],InputValue: [],tempLoop: [], bool: [], Status: status}
+    end
+      resourceArray << {name: "Other",project_id: 0 ,dayHours: [],temp: [],InputValue: [],tempLoop: [], bool: [], Status: ""}
+    render json: resourceArray
+  end
+
+
   def check_availablity
     res=[]
     # resource = AccountResourceMapping.where.not(account_id: params[:account_id]).all

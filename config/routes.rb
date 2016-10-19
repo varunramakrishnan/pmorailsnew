@@ -46,6 +46,12 @@ Rails.application.routes.draw do
   post 'deletedependency' => 'application#deletedependency' 
   post 'filtered-projects' => 'projects#filteredprojects' 
   post 'check-availablity' => 'account_resource_mappings#check_availablity'
+  post 'save-timecard' => 'time_tracks#save_timecard'
+  post 'get-timecard' => 'time_tracks#get_timecard'
+  get 'resource-projects/:id' => 'account_resource_mappings#resource_projects'
+  post 'get-resource-pie-data' => 'time_tracks#get_resource_pie_data'
+
+  
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

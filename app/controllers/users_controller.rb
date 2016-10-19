@@ -25,10 +25,25 @@ class UsersController < ApplicationController
   if user
     access_token = SecureRandom.hex
     ApiKey.create({access_token: access_token})
+  
+  # user.resource_id=1
+  if user.employee_id
+    resource=Resource.find_by_employee_id(user.employee_id)
+      
+    if resource
+      resource_id = resource.id
+    else
+      resource_id = 0
+    end
+  else
+    resource_id = 0
   end
+  end
+    
     respond_to do |format|
     if user
-      format.json { render json: {user: user,access_token: access_token } }
+      result = {id: user.id, username: user.username, employee_id: user.employee_id,resource_id: resource_id, role: user.role,created_at: user.created_at ,updated_at: user.updated_at}
+      format.json { render json: {user: result,access_token: access_token } }
     #session[:user_id] = user.id
     #redirect_to root_url, :notice => "Logged in!"
     else
@@ -42,12 +57,26 @@ class UsersController < ApplicationController
   # POST /users
   # POST /users.json
   def create
-    @user = User.new(user_params)
-
+    @user = User.new()
+    @user.username = user_params[:username]
+    @user.password = user_params[:password]
+    @user.employee_id = user_params[:employee_id]
+    res = Resource.find_by_employee_id(user_params[:employee_id])
+    if res
+     role = Role.find(res[:heirarchy_id])
+    end
+    if role
+      if role[:heirarchy_id] == 1 
+        @user.role = "pm"
+      elsif role[:heirarchy_id] == 2 
+        @user.role = "pl"
+      end
+    else
+      @user.role = ""
+    end
     respond_to do |format|
       if @user.save
         format.html { redirect_to @user, notice: 'User was successfully created.' }
-        #format.json { render :show, status: :created, location: @user }
         format.json { render json: {success: @user } }
       else
         format.html { render :new }
@@ -88,6 +117,6 @@ class UsersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def user_params
-      params.require(:user).permit(:username, :password, :role)
+      params.require(:user).permit(:username, :password, :role, :employee_id)
     end
 end
