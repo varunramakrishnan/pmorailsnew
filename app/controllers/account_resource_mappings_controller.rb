@@ -96,19 +96,50 @@ class AccountResourceMappingsController < ApplicationController
 
   def resource_projects
     resourceprojects = AccountResourceMapping.where(resource_id: params[:id]).all
+    hash = Hash.new 
     resourceArray = []
     resourceprojects.each do |r|
-      project_name = Project.find(r.project_id).project_name
-      project_id = r.project_id
-      # dayHours = []
-      # temp = []
-      # inputValue = []
-      # tempLoop = []
-      # bool = []
-      status = r.status
-      resourceArray << {name: project_name,project_id: project_id,dayHours: [],temp: [],InputValue: [],tempLoop: [], bool: [], Status: status}
+
+      if hash[r.account_id]
+        if hash[r.account_id][r.service_id]
+            unless hash[r.account_id][r.service_id].include?(r.project_id)
+              hash[r.account_id][r.service_id] << r.project_id
+            end
+        else
+          hash[r.account_id][r.service_id] = []
+           hash[r.account_id][r.service_id] << 0
+          unless hash[r.account_id][r.service_id].include?(r.project_id)
+            hash[r.account_id][r.service_id] << r.project_id
+          end
+        end
+      else
+        hash[r.account_id] = Hash.new 
+        hash[r.account_id][r.service_id] = []
+        hash[r.account_id][r.service_id] << 0
+        unless hash[r.account_id][r.service_id].include?(r.project_id)
+            hash[r.account_id][r.service_id] << r.project_id
+        end
+      end
     end
-      resourceArray << {name: "Other",project_id: 0 ,dayHours: [],temp: [],InputValue: [],tempLoop: [], bool: [], Status: ""}
+
+    hash.each do |val,key| 
+      key.each do |v,k| 
+       k.each do |p|
+         project_id = p
+         account_id = val
+         service_id = v
+         if p == 0
+          project_name = Account.find(account_id).account_code + " - " + Service.find(service_id).service_code 
+         else
+          project_name = Account.find(account_id).account_code + " - " + Service.find(service_id).service_code + " - " + Project.find(project_id).project_code
+         end
+          resourceArray << {name: project_name,project_id: project_id,account_id: account_id,service_id: service_id,dayHours: [],temp: [],InputValue: [],tempLoop: [], bool: [], Status: ""}
+       end
+      end
+    end
+
+
+       resourceArray << {name: "Other",project_id: 0,account_id: 0 ,service_id: 0,dayHours: [],temp: [],InputValue: [],tempLoop: [], bool: [], Status: ""}
     render json: resourceArray
   end
 
