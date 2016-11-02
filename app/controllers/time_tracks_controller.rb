@@ -275,7 +275,7 @@ def get_timecard
       else
         colour = "red"
       end
-      finaldata << {"name": res.employee_name,"emp_id": res.employee_id,"id": res.id,"spark": {"data": data,"label": label,"ydata": ydata},"hours": totutl,"perc": totperc,"colour": colour}
+      finaldata << {"name": res.employee_name,"emp_id": res.employee_id,"id": res.id,"spark": {"data": data,"label": label,"ydata": ydata},"hours": totutl.to_s + "/" + total_hrs.to_s,"perc": totperc,"colour": colour}
       
       # if arr.exclude? res.id
       #   arr << res.id
