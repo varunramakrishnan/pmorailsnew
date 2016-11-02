@@ -50,6 +50,8 @@ Rails.application.routes.draw do
   post 'get-timecard' => 'time_tracks#get_timecard'
   get 'resource-projects/:id' => 'account_resource_mappings#resource_projects'
   post 'get-resource-pie-data' => 'time_tracks#get_resource_pie_data'
+  post 'get-report-data' => 'time_tracks#get_report_data'
+  
 
   
   # The priority is based upon order of creation: first created -> highest priority.

@@ -194,6 +194,98 @@ def get_timecard
          
   end
 
+  def get_report_data
+    finaldata = []
+    if params[:dates].length == 1
+        total_hrs = 8      
+      elsif params[:dates].length == 7
+        total_hrs = 40
+      else
+        total_hrs = 160
+      end
+   resutil = 0
+   resources = Resource.all
+   util = 0
+   res_hrs = resources.length * total_hrs
+    resources.each do |res|
+      data = []
+      label = []
+      ydata = []
+      hashes = Hash.new
+      params[:dates].each do |date|
+        timetrack = TimeTrack.where({resource_id: res.id, date: date})
+        timetrack.each do |t|
+            if ! hashes.key?(t[:account_id])
+              hashes[t[:account_id]] = Hash.new
+            end
+            if !hashes[t[:account_id]].key?(t[:service_id])
+              hashes[t[:account_id]][t[:service_id]] = Hash.new
+            end
+              if hashes[t[:account_id]][t[:service_id]].key?(t[:project_id])
+                hashes[t[:account_id]][t[:service_id]][t[:project_id]] += t[:hrs_logged]
+              else
+                hashes[t[:account_id]][t[:service_id]][t[:project_id]] = t[:hrs_logged]
+              end
+        end
+      end
+      totutl=0
+
+      hashes.each do |val,key| 
+          key.each do |v,k| 
+               k.each do |p,h|
+                 project_id = p
+                 account_id = val
+                 service_id = v
+                 hrs = h
+                   if p == "0"
+                    if val == 0
+                      account_code = "Other"
+                    else
+                      account_code = Account.find(account_id).account_code
+                    end
+                    if v == 0
+                      service_code = "OMC"
+                    else
+                      service_code = Service.find(service_id).service_code
+                    end
+                    project_name = account_code + " - " +  service_code
+                   else
+                    project_name = Account.find(account_id).account_code + " - " + Service.find(service_id).service_code + " - " + Project.find(project_id).project_code
+                   end
+
+                 perc = h*100/total_hrs
+                constr  = project_name + " - " +perc.to_s + "%"
+                label << constr
+                ydata << h
+                y = h
+                data << {"key": key,"y": y}
+                totutl += h
+                util += h
+               end
+          end
+      end
+      
+      totperc = totutl*100/total_hrs
+      if totperc < 50
+        colour = "red"
+      elsif totperc < 70
+        colour = "yellow"
+      elsif totperc < 85
+        colour = "green"
+      else
+        colour = "red"
+      end
+      finaldata << {"name": res.employee_name,"emp_id": res.employee_id,"id": res.id,"spark": {"data": data,"label": label,"ydata": ydata},"hours": totutl,"perc": totperc,"colour": colour}
+      
+      # if arr.exclude? res.id
+      #   arr << res.id
+      #   result << {id: res.id, employee_id: res.employee_id, employee_name: res.employee_name, group:'N'}
+      # end
+    end
+    resutil  = util.to_f*100/res_hrs.to_f
+    render json: {donut: finaldata,util: resutil,total_hrs: res_hrs,util_hrs: util}
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_time_track
