@@ -72,18 +72,24 @@ class AccountsController < ApplicationController
     # account_services=params[:services].to_a
     # render json: account_services
       my=[]
-     found = Account.find_by_account_name account_params[:account_name]
+     found = Account.find_by_id account_params[:id]
      saved=0
      if found
-       account = Account.find_by_account_name(account_params[:account_name]).update(account_params)
+      account_params[:account_code] = account_params[:account_code].upcase!
+       account = Account.find_by_id(account_params[:id]).update(account_params)
        des = AccountServiceMapping.where(account_id: found.id).all.destroy_all
        saved=1
      else
-      account = Account.create({account_name:account_params[:account_name],account_code:account_params[:account_code],organisational_unit_id: account_params[:organisational_unit_id], resource_id: account_params[:resource_id], project_status: account_params[:project_status],  region: account_params[:region], location: account_params[:location], csm_contact: account_params[:csm_contact], sales_contact: account_params[:sales_contact], overall_health: account_params[:overall_health], account_lob: account_params[:account_lob], comments: account_params[:comments], account_contact: account_params[:account_contact] })  
+      account = Account.create({account_name:account_params[:account_name],account_code:account_params[:account_code].upcase!,organisational_unit_id: account_params[:organisational_unit_id], resource_id: account_params[:resource_id], project_status: account_params[:project_status],  region: account_params[:region], location: account_params[:location], csm_contact: account_params[:csm_contact], sales_contact: account_params[:sales_contact], overall_health: account_params[:overall_health], account_lob: account_params[:account_lob], comments: account_params[:comments], account_contact: account_params[:account_contact] })  
        saved=1
      end
       if saved
-        res = Account.find_by_account_name account_params[:account_name]
+        if account_params[:id]
+          res = Account.find_by_id account_params[:id]
+        else
+          res = account
+        end
+        
         account_services=params[:services].to_a
         # test=params[:sermodel].to_a
          account_services.each do |s| 
@@ -134,6 +140,6 @@ class AccountsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def account_params
-      params.require(:account).permit(:account_name,:account_code,:account_lob,:overall_health, :organisational_unit_id, :resource_id, :project_status, :sermodel,:services, :region, :location,  :csm_contact, :sales_contact, :account_contact, :comments )
+      params.require(:account).permit(:account_name,:account_code,:account_lob,:overall_health, :organisational_unit_id, :resource_id, :project_status, :sermodel,:services, :region, :location,  :csm_contact, :sales_contact, :account_contact, :comments,:id,:pm_contact )
     end
 end
