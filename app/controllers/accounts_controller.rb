@@ -69,37 +69,32 @@ class AccountsController < ApplicationController
   # POST /accounts
   # POST /accounts.json
   def create
-    # account_services=params[:services].to_a
-    # render json: account_services
-      my=[]
-     found = Account.find_by_id account_params[:id]
-     saved=0
-     if found
-      account_params[:account_code] = account_params[:account_code].upcase!
-       account = Account.find_by_id(account_params[:id]).update(account_params)
-       des = AccountServiceMapping.where(account_id: found.id).all.destroy_all
-       saved=1
+     account_params[:account_code] = account_params[:account_code].upcase!
+     if Account.exists?(account_params[:id]) 
+       @account = Account.find_by_id(account_params[:id]).update(account_params)
+       account_id  =account_params[:id]
+       des = AccountServiceMapping.where(account_id: account_id).all.destroy_all
      else
-      account = Account.create({account_name:account_params[:account_name],account_code:account_params[:account_code].upcase!,organisational_unit_id: account_params[:organisational_unit_id], resource_id: account_params[:resource_id], project_status: account_params[:project_status],  region: account_params[:region], location: account_params[:location], csm_contact: account_params[:csm_contact], sales_contact: account_params[:sales_contact], overall_health: account_params[:overall_health], account_lob: account_params[:account_lob], comments: account_params[:comments], account_contact: account_params[:account_contact] })  
-       saved=1
+       @account = Account.create({account_name:account_params[:account_name],account_code:account_params[:account_code],organisational_unit_id: account_params[:organisational_unit_id], resource_id: account_params[:resource_id], project_status: account_params[:project_status],  region: account_params[:region], location: account_params[:location], csm_contact: account_params[:csm_contact], sales_contact: account_params[:sales_contact], overall_health: account_params[:overall_health], account_lob: account_params[:account_lob], comments: account_params[:comments], account_contact: account_params[:account_contact] })  
+       account_id  = @account.id
      end
-      if saved
-        if account_params[:id]
-          res = Account.find_by_id account_params[:id]
-        else
-          res = account
-        end
+      # if saved
+        # if account_params[:id]
+        #   res = Account.find_by_id account_params[:id]
+        # else
+        #   res = account
+        # end
         
         account_services=params[:services].to_a
-        # test=params[:sermodel].to_a
          account_services.each do |s| 
-            AccountServiceMapping.create({account_id: res.id, service_id: s[:id],start_date: s[:start_date],end_date: s[:end_date],request_date: s[:request_date],sow_signed_date: s[:sow_signed_date],no_of_people_needed: s[:no_of_people_needed],no_of_people_allocated: s[:no_of_people_allocated],contract_type: s[:contract_type],project_status: s[:project_status],sow_status: s[:sow_status],currency: s[:anticipated_value_currency],anticipated_value: s[:anticipated_value],actual_value: s[:actual_value],anticipated_usd_value: s[:anticipated_usd_value],actual_usd_value: s[:actual_usd_value],health: s[:health],comments: s[:comments],})
+            AccountServiceMapping.create({account_id: account_id, service_id: s[:id],start_date: s[:start_date],end_date: s[:end_date],request_date: s[:request_date],sow_signed_date: s[:sow_signed_date],no_of_people_needed: s[:no_of_people_needed],no_of_people_allocated: s[:no_of_people_allocated],contract_type: s[:contract_type],project_status: s[:project_status],sow_status: s[:sow_status],currency: s[:anticipated_value_currency],anticipated_value: s[:anticipated_value],actual_value: s[:actual_value],anticipated_usd_value: s[:anticipated_usd_value],actual_usd_value: s[:actual_usd_value],health: s[:health],comments: s[:comments]})
          end
-        # render json: account_services
-         render json: saved
-      else
-         render json: saved
-      end
+         # render json: {success: @account,errors: @account.errors}
+          render json: {success: @account}
+         # render json: account_id
+      # else
+      #    render json: saved
+      # end
     # render json: saved
   end
 
