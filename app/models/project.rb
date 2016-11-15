@@ -7,4 +7,5 @@ class Project < ActiveRecord::Base
    def upcase_fields
       self.project_code.upcase!
    end
+
 end

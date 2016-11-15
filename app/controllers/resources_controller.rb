@@ -1,6 +1,6 @@
   class ResourcesController < ApplicationController
     before_action :set_resource, only: [:show, :edit, :update, :destroy]
-    before_filter :restrict_access 
+    # before_filter :restrict_access 
 
     # GET /resources
     # GET /resources.json
@@ -9,10 +9,21 @@
       result = []
       resources.each do |res|
         role=Role.where({id: res.heirarchy_id}).pluck(:role_name)[0]
-        result << {id: res.id, employee_id: res.employee_id, employee_name: res.employee_name, heirarchy_id: res.heirarchy_id, role: role, skill: res.skills.collect(&:skill_name).join(","), skill_id: res.skills.collect(&:id)}
+        manager_name=Resource.where({id: res.manager_id}).pluck(:employee_name)[0]
+        result << {id: res.id, employee_id: res.employee_id, employee_name: res.employee_name, heirarchy_id: res.heirarchy_id, role: role, skill: res.skills.collect(&:skill_name).join(","), skill_id: res.skills.collect(&:id),manager_name: manager_name}
       end
       render json: result
     end
+
+    # GET /resources
+    # GET /resources/people.json
+     def resourcesUnderManager
+      manager=params[:id]
+      # resource_manager_id=Resource.where(id: manager).pluck(:manager_id)
+      res = Resource.where(manager_id: manager)
+      # result << {id: res.id, employee_id: res.employee_id, employee_name: res.employee_name, heirarchy_id: res.heirarchy_id, role: role}
+      render json: {success: res }
+    end 
 
     # GET /resources/1
     # GET /resources/1.json
@@ -203,7 +214,8 @@
     # POST /resources.json
     def create
       role=Role.find(resource_params[:heirarchy_id])
-      @resource = Resource.create({employee_id: resource_params[:employee_id],employee_name: resource_params[:employee_name], heirarchy_id: resource_params[:heirarchy_id],role:  role.role_name})
+      
+      @resource = Resource.create({employee_id: resource_params[:employee_id],employee_name: resource_params[:employee_name], heirarchy_id: resource_params[:heirarchy_id],role:  role.role_name,manager_id:resource_params[:manager_id]})
       #skill = Skill.find(params[:skill])
       respond_to do |format|
         if @resource.save
@@ -862,7 +874,7 @@
       #end
       # Never trust parameters from the scary internet, only allow the white list through.
       def resource_params
-        params.require(:resource).permit(:employee_id, :employee_name, :role, :heirarchy_id, :skill, :resmodel)
+        params.require(:resource).permit(:employee_id, :employee_name, :role, :heirarchy_id, :skill, :resmodel,:manager_id)
       end
       def res_params
         params.permit(:resources)
