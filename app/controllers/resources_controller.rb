@@ -68,7 +68,19 @@
                end
                render json: {success: flag ,dates: values}
     end
-
+  def saveimage
+    # name = "teabin.png"
+    if params[:type] == "A"
+      name = params[:type]+"-"+params[:id]+".png";
+    else
+      name = params[:id]+".png";
+    end
+    directory = ENV["IMG_PATH"]
+    path = File.join(directory, name)
+    File.open(path, "wb") { |f| f.write(params[:file].read) }
+    flash[:notice] = "File uploaded"
+    render json: {success: 1 }
+  end
     # def newoccupied
     #   newstr=[]
     #     params[:resources].each do |para|

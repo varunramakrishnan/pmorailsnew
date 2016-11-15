@@ -1,0 +1,4 @@
+    development:
+      IMG_PATH: C:/xampp/htdocs/pmo/img
+    production:
+      IMG_PATH: C:/xampp/htdocs/pmo/img
