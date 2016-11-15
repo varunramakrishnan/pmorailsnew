@@ -6,4 +6,5 @@ class Resource < ActiveRecord::Base
 	has_many :account_resource_mappings, dependent: :destroy
   has_many :accounts, :through => :account_resource_mappings
   has_many :skills, through: :resource_skill_mappings
+  
 end
