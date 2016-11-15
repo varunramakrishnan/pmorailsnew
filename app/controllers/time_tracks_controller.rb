@@ -168,16 +168,42 @@ def get_timecard
           if val == 0
             account_code = "Other"
           else
-            account_code = Account.find(account_id).account_code
+            if Account.exists?(account_id)
+              account_code = Account.find(account_id).account_code
+            else
+              account_code = "Account Not Found"
+            end
           end
           if v == 0
             service_code = "OMC"
           else
-            service_code = Service.find(service_id).service_code
+            if Service.exists?(service_id)
+              service_code = Service.find(service_id).service_code
+            else
+              service_code = "Service Not Found"
+            end
           end
           project_name = account_code + " - " +  service_code
          else
-          project_name = Account.find(account_id).account_code + " - " + Service.find(service_id).service_code + " - " + Project.find(project_id).project_code
+          if Account.exists?(account_id)
+              account_code = Account.find(account_id).account_code
+          else
+              account_code = "Account Not Found"
+          end
+
+          if Service.exists?(service_id)
+            service_code = Service.find(service_id).service_code
+          else
+            service_code = "Service Not Found"
+          end
+
+          if Project.exists?(project_id)
+              project_code = Project.find(project_id).project_code
+          else
+              project_code = "Project Not Found"
+          end
+
+          project_name = account_code + " - " + service_code + " - " + project_code
          end
 
          perc = h*100/total_hrs
@@ -241,16 +267,43 @@ def get_timecard
                     if val == 0
                       account_code = "Other"
                     else
-                      account_code = Account.find(account_id).account_code
+                      if Account.exists?(account_id)
+                        account_code = Account.find(account_id).account_code
+                      else
+                        account_code = "Account Not Found"
+                      end
                     end
                     if v == 0
                       service_code = "OMC"
                     else
-                      service_code = Service.find(service_id).service_code
+                      if Service.exists?(service_id)
+                        service_code = Service.find(service_id).service_code
+                      else
+                        service_code = "Service Not Found"
+                      end
                     end
                     project_name = account_code + " - " +  service_code
                    else
-                    project_name = Account.find(account_id).account_code + " - " + Service.find(service_id).service_code + " - " + Project.find(project_id).project_code
+                    if Account.exists?(account_id)
+                        account_code = Account.find(account_id).account_code
+                    else
+                        account_code = "Account Not Found"
+                    end
+
+                    if Service.exists?(service_id)
+                        service_code = Service.find(service_id).service_code
+                      else
+                        service_code = "Service Not Found"
+                      end
+
+                      if Project.exists?(project_id)
+                          project_code = Project.find(project_id).project_code
+                      else
+                          project_code = "Project Not Found"
+                      end
+
+
+                    project_name = account_code + " - " + service_code + " - " + project_code
                    end
 
                  perc = h*100/total_hrs

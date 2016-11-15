@@ -5,4 +5,10 @@ class OrganisationalUnit < ActiveRecord::Base
 	has_many :organisational_unit_service_mappings, dependent: :destroy
 	has_many :services, dependent: :destroy
   	has_many :services, :through => :organisational_unit_service_mappings, dependent: :destroy
+
+  	before_save :upcase_fields
+
+   def upcase_fields
+      self.unit_code.upcase!
+   end
 end
