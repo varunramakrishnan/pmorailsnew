@@ -1,5 +1,5 @@
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     actionmailer (4.2.5.1)
       actionpack (= 4.2.5.1)
@@ -71,9 +71,15 @@ GEM
     mini_portile2 (2.0.0)
     minitest (5.8.4)
     multi_json (1.11.2)
+    mysql2 (0.4.2)
     mysql2 (0.4.2-x86-mingw32)
+    nokogiri (1.6.7.2)
+      mini_portile2 (~> 2.0.0.rc2)
     nokogiri (1.6.7.2-x86-mingw32)
       mini_portile2 (~> 2.0.0.rc2)
+    passenger (5.0.26)
+      rack
+      rake (>= 0.8.1)
     rack (1.6.4)
     rack-cors (0.4.0)
     rack-test (0.6.3)
@@ -141,6 +147,7 @@ GEM
       sprockets-rails (>= 2.0, < 4.0)
 
 PLATFORMS
+  ruby
   x86-mingw32
 
 DEPENDENCIES
@@ -149,6 +156,7 @@ DEPENDENCIES
   jbuilder (~> 2.0)
   jquery-rails
   mysql2 (>= 0.3.13, < 0.5)
+  passenger (>= 5.0.25)
   rack-cors
   rails (= 4.2.5.1)
   sass-rails (~> 5.0)

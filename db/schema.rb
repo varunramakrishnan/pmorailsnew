@@ -11,7 +11,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161110120006) do
+
+ActiveRecord::Schema.define(version: 20161020115725) do
 
   create_table "account_resource_mappings", force: :cascade do |t|
     t.integer  "resource_id",       limit: 4
