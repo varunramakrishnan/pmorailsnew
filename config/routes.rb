@@ -51,6 +51,7 @@ Rails.application.routes.draw do
   get 'resource-projects/:id' => 'account_resource_mappings#resource_projects'
   post 'get-resource-pie-data' => 'time_tracks#get_resource_pie_data'
   post 'get-report-data' => 'time_tracks#get_report_data'
+  get 'resource-managers/:id' => 'resources#resourcesUnderManager' 
   
 
   
