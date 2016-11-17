@@ -89,8 +89,26 @@ class AccountsController < ApplicationController
          account_services.each do |s| 
             AccountServiceMapping.create({account_id: account_id, service_id: s[:id],start_date: s[:start_date],end_date: s[:end_date],request_date: s[:request_date],sow_signed_date: s[:sow_signed_date],no_of_people_needed: s[:no_of_people_needed],no_of_people_allocated: s[:no_of_people_allocated],contract_type: s[:contract_type],project_status: s[:project_status],sow_status: s[:sow_status],currency: s[:anticipated_value_currency],anticipated_value: s[:anticipated_value],actual_value: s[:actual_value],anticipated_usd_value: s[:anticipated_usd_value],actual_usd_value: s[:actual_usd_value],health: s[:health],comments: s[:comments]})
          end
-         # render json: {success: @account,errors: @account.errors}
-          render json: {success: @account}
+         if @account.respond_to?('success')
+            render json: {success: @account,errors: {}}         
+         else
+          render json: {success: @account,errors: @account.errors}
+         end
+         # if @account.respond_to?('success')
+         #    render json: {success: @account.success}         
+         # else
+         #   if @account.respond_to?('errors')
+         #    if @account.errors.length
+         #     render json: {errors: @account.errors}
+         #     else
+         #      render json: {success: @account}
+         #     end
+         #   else
+         #     render json: {success:@account, errors: @account}
+         #   end
+         # end
+         
+          
          # render json: account_id
       # else
       #    render json: saved
@@ -101,15 +119,25 @@ class AccountsController < ApplicationController
   # PATCH/PUT /accounts/1
   # PATCH/PUT /accounts/1.json
   def update
-    respond_to do |format|
-      if @account.update(account_params)
-        format.html { redirect_to @account, notice: 'Account was successfully updated.' }
-        format.json { render :show, status: :ok, location: @account }
-      else
-        format.html { render :edit }
-        format.json { render json: @account.errors, status: :unprocessable_entity }
-      end
-    end
+    # respond_to do |format|
+    #   if @account.update(account_params)
+    #     format.html { redirect_to @account, notice: 'Account was successfully updated.' }
+    #     format.json { render :show, status: :ok, location: @account }
+    #   else
+    #     format.html { render :edit }
+    #     format.json { render json: @account.errors, status: :unprocessable_entity }
+    #   end
+    # end
+    if Account.exists?(account_params[:id]) 
+       @account = Account.find_by_id(account_params[:id]).update(account_params)
+       account_id  =account_params[:id]
+       des = AccountServiceMapping.where(account_id: account_id).all.destroy_all
+     end
+        account_services=params[:services].to_a
+         account_services.each do |s| 
+            AccountServiceMapping.create({account_id: account_id, service_id: s[:id],start_date: s[:start_date],end_date: s[:end_date],request_date: s[:request_date],sow_signed_date: s[:sow_signed_date],no_of_people_needed: s[:no_of_people_needed],no_of_people_allocated: s[:no_of_people_allocated],contract_type: s[:contract_type],project_status: s[:project_status],sow_status: s[:sow_status],currency: s[:anticipated_value_currency],anticipated_value: s[:anticipated_value],actual_value: s[:actual_value],anticipated_usd_value: s[:anticipated_usd_value],actual_usd_value: s[:actual_usd_value],health: s[:health],comments: s[:comments]})
+         end
+          render json: {success: @account,errors: @account}
   end
 
   # DELETE /accounts/1
