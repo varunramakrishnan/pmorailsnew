@@ -222,6 +222,7 @@ def get_timecard
 
   def get_report_data
     finaldata = []
+    rids = []
     if params[:dates].length == 1
         total_hrs = 8      
       elsif params[:dates].length == 7
@@ -230,7 +231,17 @@ def get_timecard
         total_hrs = 160
       end
    resutil = 0
-   resources = Resource.all
+   if params[:resource]
+    params[:resource].each do |r|
+      rids << r[:id]
+    end
+    resources = Resource.where(id: rids)
+    # resources = Resource.all
+   else
+    resources = Resource.all
+   end
+
+   
    util = 0
    res_hrs = resources.length * total_hrs
     resources.each do |res|

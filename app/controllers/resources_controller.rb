@@ -18,9 +18,16 @@
     # GET /resources
     # GET /resources/people.json
      def resourcesUnderManager
-      manager=params[:id]
+      mids = []
+      if params[:data]
+        params[:data].each do |r|
+          mids << r[:id]
+        end
+      end
+      res = Resource.where(manager_id: mids)
+      # manager=params[:data]
       # resource_manager_id=Resource.where(id: manager).pluck(:manager_id)
-      res = Resource.where(manager_id: manager)
+      # res = Resource.where(manager_id: manager)
       # result << {id: res.id, employee_id: res.employee_id, employee_name: res.employee_name, heirarchy_id: res.heirarchy_id, role: role}
       render json: {success: res }
     end 
