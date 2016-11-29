@@ -78,13 +78,14 @@ class TimeTracksController < ApplicationController
          date = t[:dayHours][0][:day][key]
          hrs_logged = tnew
           status = t[:Status]
+          comments = t[:comments]
           temres = TimeTrack.where({resource_id: resource_id, user_id: user_id,project_id: project_id,account_id: account_id,service_id: service_id,week_id: week_id,date: date}).all
           if temres[0]
             if temres[0][:id]
-              TimeTrack.update(temres[0][:id], :hrs_logged => hrs_logged, :status => status)
+              TimeTrack.update(temres[0][:id], :hrs_logged => hrs_logged, :status => status,:comments => comments)
             end
           else
-              TimeTrack.create({resource_id: resource_id, user_id: user_id,project_id: project_id,account_id: account_id,service_id: service_id,week_id: week_id,date: date,hrs_logged:  hrs_logged,status: status})
+              TimeTrack.create({resource_id: resource_id, user_id: user_id,project_id: project_id,account_id: account_id,service_id: service_id,week_id: week_id,date: date,hrs_logged:  hrs_logged,status: status,:comments => comments})
           end
           
         end
@@ -101,16 +102,20 @@ def get_timecard
     wid = params[:data][:week_id]
     fetch = TimeTrack.where(user_id: uid,week_id: wid).all
     hash = Hash.new
+    comhash = Hash.new
     fetch.each do |val|
       if ! hash.key?(val.account_id)
         hash[val.account_id] = Hash.new
+        comhash[val.account_id] = Hash.new
       end
       if ! hash[val.account_id].key?(val.service_id)
         hash[val.account_id][val.service_id] = Hash.new
+        comhash[val.account_id][val.service_id] = Hash.new
       end
       if ! hash[val.account_id][val.service_id].key?(val.project_id)
         hash[val.account_id][val.service_id][val.project_id] = Hash.new
       end
+        comhash[val.account_id][val.service_id][val.project_id] = val.comments
         hash[val.account_id][val.service_id][val.project_id][val.date]  = val.hrs_logged
     end
     user = User.find(uid)
@@ -122,7 +127,9 @@ def get_timecard
       end
     timecard = []
     timecard << hash
-     result << {userid: uid,username:username, timecard: timecard}
+    comments = []
+    comments << comhash
+     result << {userid: uid,username:username, timecard: timecard,comments: comments}
     render json: result
   end
 
