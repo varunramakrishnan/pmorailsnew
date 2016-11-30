@@ -52,7 +52,7 @@ Rails.application.routes.draw do
   post 'get-resource-pie-data' => 'time_tracks#get_resource_pie_data'
   post 'get-report-data' => 'time_tracks#get_report_data'
   post 'save-image/:type/:id' => 'resources#saveimage'
-  get 'resource-managers/:id' => 'resources#resourcesUnderManager' 
+  post 'resource-managers' => 'resources#resourcesUnderManager' 
   
 
   
