@@ -322,7 +322,7 @@ def get_timecard
       if totperc < 50
         colour = "red"
       elsif totperc < 70
-        colour = "yellow"
+        colour = "chocolate"
       elsif totperc < 85
         colour = "green"
       else
