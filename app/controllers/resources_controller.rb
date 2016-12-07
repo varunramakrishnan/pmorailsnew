@@ -41,7 +41,7 @@
       allskills.each do |ski|
         skil << {id: ski.id}
       end 
-      result = {id: resource.id, employee_id: resource.employee_id, employee_name: resource.employee_name, heirarchy_id: resource.heirarchy_id, role: resource.role, skill: resource.skills.collect(&:skill_name).join(","), skill_id: skil}
+      result = {id: resource.id, employee_id: resource.employee_id, manager_id: resource.manager_id, employee_name: resource.employee_name, heirarchy_id: resource.heirarchy_id, role: resource.role, skill: resource.skills.collect(&:skill_name).join(","), skill_id: skil}
       render json: result
     end
 
@@ -573,9 +573,9 @@
                                             end
 
                                           results << {title: resname + " ("+ array.to_s+ "%) ",perc: array.to_s, start: key,description: accountHash[key][0,accountHash[key].length-2],type: "filter"}
-                                          if(array != 100)
-                                            results << {title: resname + " ("+ (100-array).to_s+ "%)",perc: (100-array).to_s , start: key,type: "free",description:""}       
-                                          end
+                                          # if(array != 100)
+                                          #   results << {title: resname + " ("+ (100-array).to_s+ "%)",perc: (100-array).to_s , start: key,type: "free",description:""}       
+                                          # end
                                             
                                          end
                                           newtemporaryarr.each do |newv|

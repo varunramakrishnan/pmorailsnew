@@ -354,7 +354,7 @@ def get_timecard
       # end
     end
     resutil  = util.to_f*100/res_hrs.to_f
-    render json: {donut: finaldata,util: resutil,total_hrs: res_hrs,util_hrs: util}
+    render json: {donut: finaldata,util: resutil.round(2),total_hrs: res_hrs,util_hrs: util}
   end
 
   private
