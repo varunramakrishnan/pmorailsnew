@@ -138,7 +138,8 @@ def get_timecard
     label = []
     data = []
       if params[:dates].length == 1
-        total_hrs = 8      
+        total_hrs = 8   
+          
       elsif params[:dates].length == 7
         total_hrs = 40
       else
@@ -230,12 +231,9 @@ def get_timecard
   def get_report_data
     finaldata = []
     rids = []
-    if params[:dates].length == 1
-        total_hrs = 8      
-      elsif params[:dates].length == 7
-        total_hrs = 40
-      else
-        total_hrs = 160
+    if params[:dates].length.between?(1, 31)
+      total_hrs = params[:dates].length * 8
+   
       end
    resutil = 0
    if params[:resource]
@@ -339,11 +337,11 @@ def get_timecard
       totperc = totutl*100/total_hrs
       if totperc < 50
         colour = "red"
-      elsif totperc < 70
+        elsif totperc < 70
         colour = "chocolate"
-      elsif totperc < 85
-        colour = "green"
-      else
+        elsif totperc < 85
+          colour = "green"
+         else
         colour = "red"
       end
       finaldata << {"name": res.employee_name,"emp_id": res.employee_id,"id": res.id,"spark": {"data": data,"label": label,"ydata": ydata},"hours": totutl.to_s + "/" + total_hrs.to_s,"perc": totperc,"colour": colour}
