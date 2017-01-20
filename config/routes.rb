@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :attributes
   resources :time_tracks
   resources :projects
   get 'account_resource_mappings/index'
@@ -53,6 +54,8 @@ Rails.application.routes.draw do
   post 'get-report-data' => 'time_tracks#get_report_data'
   post 'save-image/:type/:id' => 'resources#saveimage'
   post 'resource-managers' => 'resources#resourcesUnderManager' 
+  get 'get-account-attributes' => 'attributes#get_account_attributes'
+  
   
 
   

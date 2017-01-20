@@ -13,7 +13,7 @@ class AccountsController < ApplicationController
         man = "Null"
       end  
       # result << {id: res.id, account_name: res.account_name, organisational_unit_name: res.organisational_unit.unit_name, manager: man, resource_needed: res.resource_needed, status: res.status, services: res.services.collect(&:service_name).join(",")}
-      result << {id: res.id, account_name: res.account_name,account_code: res.account_code, organisational_unit_code: res.organisational_unit.unit_code, manager: man, status: res.project_status, services: res.services.collect(&:service_code).join(","),   region: res.region, location: res.location, comments: res.comments,account_lob: res.account_lob,account_contact: res.account_contact,csm_contact: res.csm_contact,sales_contact: res.sales_contact,overall_health: res.overall_health}
+      result << {id: res.id, account_name: res.account_name,account_code: res.account_code, organisational_unit_code: res.organisational_unit.unit_code, manager: man, status: res.project_status, services: res.services.collect(&:service_code).join(","),   region: res.region, location: res.location, comments: res.comments,account_lob: res.account_lob,account_contact: res.account_contact,csm_contact: res.csm_contact,sales_contact: res.sales_contact,overall_health: res.overall_health,actual_close_date: res.actual_close_date,actual_closed_month: res.actual_closed_month,annual_forecast: res.annual_forecast,closure_probability: res.closure_probability,currency: res.currency,expected_close_date: res.expected_close_date,expected_close_month: res.expected_close_month,market_size: res.market_size,owner: res.owner,received_date: res.received_date,sales_stage: res.sales_stage,time_zone: res.time_zone}
     end
     render json: result
   end
@@ -75,7 +75,7 @@ class AccountsController < ApplicationController
        account_id  =account_params[:id]
        des = AccountServiceMapping.where(account_id: account_id).all.destroy_all
      else
-       @account = Account.create({account_name:account_params[:account_name],account_code:account_params[:account_code],organisational_unit_id: account_params[:organisational_unit_id], resource_id: account_params[:resource_id], project_status: account_params[:project_status],  region: account_params[:region], location: account_params[:location], csm_contact: account_params[:csm_contact], sales_contact: account_params[:sales_contact], overall_health: account_params[:overall_health], account_lob: account_params[:account_lob], comments: account_params[:comments], account_contact: account_params[:account_contact] })  
+       @account = Account.create({account_name:account_params[:account_name],account_code:account_params[:account_code],organisational_unit_id: account_params[:organisational_unit_id], resource_id: account_params[:resource_id], project_status: account_params[:project_status],  region: account_params[:region], location: account_params[:location], csm_contact: account_params[:csm_contact], sales_contact: account_params[:sales_contact], overall_health: account_params[:overall_health], account_lob: account_params[:account_lob], comments: account_params[:comments], account_contact: account_params[:account_contact], actual_close_date: account_params[:actual_close_date],actual_closed_month: account_params[:actual_closed_month],annual_forecast: account_params[:annual_forecast],closure_probability: account_params[:closure_probability],currency: account_params[:currency],expected_close_date: account_params[:expected_close_date],expected_close_month: account_params[:expected_close_month],market_size: account_params[:market_size],owner: account_params[:owner],received_date: account_params[:received_date],sales_stage: account_params[:sales_stage],time_zone: account_params[:time_zone] })  
        account_id  = @account.id
      end
       # if saved
@@ -163,6 +163,6 @@ class AccountsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def account_params
-      params.require(:account).permit(:account_name,:account_code,:account_lob,:overall_health, :organisational_unit_id, :resource_id, :project_status, :sermodel,:services, :region, :location,  :csm_contact, :sales_contact, :account_contact, :comments,:id,:pm_contact )
+      params.require(:account).permit(:account_name,:account_code,:account_lob,:overall_health, :organisational_unit_id, :resource_id, :project_status, :sermodel,:services, :region, :location,  :csm_contact, :sales_contact, :account_contact, :comments,:id,:pm_contact,:actual_close_date,:actual_closed_month,:annual_forecast,:closure_probability,:currency,:expected_close_date,:expected_close_month,:market_size,:owner,:received_date,:sales_stage,:time_zone)
     end
 end

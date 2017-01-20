@@ -215,7 +215,7 @@ def get_timecard
          end
 
          perc = h*100/total_hrs
-        constr  = project_name + " - " +perc.to_s + "%"
+        constr  = project_name + " - " +perc.round(2).to_s + "%"
         label << constr
         data << h
         totutl += h
@@ -224,7 +224,7 @@ def get_timecard
     end
 
     totperc = totutl*100/total_hrs
-    render json: {"label": label,"doughdata": data,"totalutil": totperc}
+    render json: {"label": label,"doughdata": data,"totalutil": totperc.round(2)}
          
   end
 
@@ -344,7 +344,7 @@ def get_timecard
          else
         colour = "red"
       end
-      finaldata << {"name": res.employee_name,"emp_id": res.employee_id,"id": res.id,"spark": {"data": data,"label": label,"ydata": ydata},"hours": totutl.to_s + "/" + total_hrs.to_s,"perc": totperc,"colour": colour}
+      finaldata << {"name": res.employee_name,"emp_id": res.employee_id,"id": res.id,"spark": {"data": data,"label": label,"ydata": ydata},"hours": totutl.to_s + "/" + total_hrs.to_s,"perc": totperc.round(2),"colour": colour}
       
       # if arr.exclude? res.id
       #   arr << res.id

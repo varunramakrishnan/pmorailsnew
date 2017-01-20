@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  attribute_type: MyString
+  attribute_key: MyString
+  attribute_value: MyString
+  active_status: MyString
+
+two:
+  attribute_type: MyString
+  attribute_key: MyString
+  attribute_value: MyString
+  active_status: MyString
