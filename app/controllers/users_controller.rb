@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :edit, :update, :destroy]
-
+  require 'net/ldap'
   # GET /users
   # GET /users.json
   def index
@@ -20,44 +20,112 @@ class UsersController < ApplicationController
   # GET /users/1/edit
   def edit
   end
-  def search
-    user = User.authenticate(params[:username], params[:password])
-  if user
-    access_token = SecureRandom.hex
-    ApiKey.create({access_token: access_token})
+ 
   
-  # user.resource_id=1
-  if user.employee_id
-    resource=Resource.find_by_employee_id(user.employee_id)
-    employee_id = user.employee_id
-      
-    if resource
-      resource_id = resource.id
-    else
-      resource_id = 0
-    end
-  else
-    employee_id = "admin"
-    resource_id = 0
+  def find_user
+      results = @ldap_ind.search( :base => "dc=lister,dc=lan", :filter => user_filter)
+      return results.first
   end
-  end
-    
-    respond_to do |format|
-    if user
-      result = {id: user.id, username: user.username, employee_id: employee_id,resource_id: resource_id, role: user.role,created_at: user.created_at ,updated_at: user.updated_at}
-      format.json { render json: {user: result,access_token: access_token } }
-    #session[:user_id] = user.id
-    #redirect_to root_url, :notice => "Logged in!"
-    else
-      format.json { render json: {user: "error" } }
-    #flash.now.alert = "Invalid email or password"
-    #render "new"
+
+  
+  def user_filter
+      search_param = params[:username]
+      search_filter = Net::LDAP::Filter.eq("sAMAccountName", search_param)
+      group_filter = Net::LDAP::Filter.eq("objectClass", "user")
+      composite_filter = Net::LDAP::Filter.join(search_filter, group_filter)
+      composite_filter
+    end  
+   
+
+  def search
+
+    if params[:username] != 'root'
+      search_param = params[:username]
+      result_attrs = ["sAMAccountName", "displayName", "mail"]
+      search_filter = Net::LDAP::Filter.eq("sAMAccountName", search_param)
+      group_filter = Net::LDAP::Filter.eq("objectClass", "user")
+      composite_filter = Net::LDAP::Filter.join(search_filter, group_filter)
+      host = ENV['LDAPHOST']
+      @ldap_ind = Net::LDAP.new  :host => ENV['LDAPHOST'], # your LDAP host name or IP goes here,
+      :port => ENV['LDAPPORT'] # your LDAP host port goes here,
+      @ldap_ind.authenticate(ENV['LDAPUSER'], ENV['LDAPPWD'])
+      bindresult = @ldap_ind.bind_as(:base => ENV['LDAPBASE'], :password =>params[:password], :filter => composite_filter)
+      arr = []
+      if bindresult
+          entry = find_user
+          if entry
+            ldap = Net::LDAP.new  :host => ENV['LDAPHOST'], # your LDAP host name or IP goes here,
+            :port => ENV['LDAPPORT'] , # your LDAP host port goes here,
+            # :encryption => :simple_tls,
+            :base => ENV['LDAPBASE'] , # the base of your AD tree goes here,
+            :auth => {
+              :method => :simple,
+              :username => ENV['LDAPUSER'], # a user w/sufficient privileges to read from AD goes here,
+              :password => ENV['LDAPPWD'] # the user's password goes here
+            }
+            if ldap.bind
+              item = ldap.search(:filter => composite_filter, :attributes => result_attrs, :return_result => true).first
+              sAMAccountName = item.sAMAccountName.first
+              mail = item.mail.first
+              displayName = item.displayName.first
+              access_token = SecureRandom.hex
+              ApiKey.create({access_token: access_token})
+              if mail
+                resource=Resource.find_by_mail(mail.downcase)
+                if resource
+                  resource_id = resource.id
+                  employee_id = resource.employee_id
+                  respond_to do |format|
+                   result = {username: sAMAccountName, employee_id: employee_id,resource_id: resource_id, role: resource.heirarchy_id,created_at: resource.created_at ,updated_at: resource.updated_at,mail: resource.mail}
+                   format.json { render json: {user: result,access_token: access_token } }
+                  end
+                else
+                  resource_id = 0
+                  employee_id = "admin"
+                  respond_to do |format|
+                   format.json { render json: {user: {error: "Please Check with your Manager"} } }
+                  end
+                end
+              else
+                employee_id = "admin"
+                resource_id = 0
+                respond_to do |format|
+                   format.json { render json: {user: {error: "Please Check with your Manager"} } }
+                end
+              end 
+                # respond_to do |format|
+                #  result = {username: sAMAccountName, employee_id: employee_id,resource_id: resource_id, role: resource.heirarchy_id,created_at: resource.created_at ,updated_at: resource.updated_at,mail: resource.mail}
+                #  format.json { render json: {user: result,access_token: access_token } }
+                # end
+             end
+          end
+            
+      else
+        respond_to do |format|
+         format.json { render json: {user: {error: "Wrong Credentials"} } }
+        end
+      end
+    else 
+          user = User.authenticate(params[:username], params[:password])
+          if user
+            access_token = SecureRandom.hex
+            ApiKey.create({access_token: access_token})
+            resource_id = 0
+            employee_id = "admin"
+            respond_to do |format|
+              result = {username: params[:username], employee_id: employee_id,resource_id: resource_id, role: 0 ,created_at:  user.created_at,updated_at: user.updated_at,mail: 'root@example.com'}
+              format.json { render json: {user: result,access_token: access_token } }
+            end 
+          else
+             respond_to do |format|
+               format.json { render json: {user: {error: "No User Present"} } }
+              end
+          end
+          
     end
-    end
-    #format.json { render json: {user: user }}
   end
-  # POST /users
-  # POST /users.json
+
+  
   def create
     @user = User.new()
     @user.username = user_params[:username]

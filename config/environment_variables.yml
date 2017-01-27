@@ -1,4 +1,14 @@
     development:
       IMG_PATH: C:/xampp/htdocs/pmo/img
+      LDAPUSER: 'iAdmin'
+      LDAPPWD: 'i#AS400u1R1'
+      LDAPBASE: 'DC=lister,DC=lan'
+      LDAPHOST: 'lister.lan'
+      LDAPPORT: '389'
     production:
       IMG_PATH: C:/xampp/htdocs/pmo/img
+      LDAPUSER: 'iAdmin'
+      LDAPPWD: 'i#AS400u1R1'
+      LDAPBASE: 'DC=lister,DC=lan'
+      LDAPHOST: 'lister.lan'
+      LDAPPORT: '389'

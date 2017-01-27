@@ -100,7 +100,7 @@ def get_timecard
     result = []
     uid = params[:data][:user][:user_id]
     wid = params[:data][:week_id]
-    fetch = TimeTrack.where(user_id: uid,week_id: wid).all
+    fetch = TimeTrack.where(resource_id: uid,week_id: wid).all
     hash = Hash.new
     comhash = Hash.new
     fetch.each do |val|
@@ -118,10 +118,9 @@ def get_timecard
         comhash[val.account_id][val.service_id][val.project_id] = val.comments
         hash[val.account_id][val.service_id][val.project_id][val.date]  = val.hrs_logged
     end
-    user = User.find(uid)
-    res= Resource.find_by_employee_id(user.employee_id)
+    res = Resource.find(uid)
     if res
-      username = res.employee_name
+        username = res.employee_name
       else
         username = user.username
       end
@@ -231,10 +230,18 @@ def get_timecard
   def get_report_data
     finaldata = []
     rids = []
-    if params[:dates].length.between?(1, 31)
-      total_hrs = params[:dates].length * 8
-   
+    dateArray = []
+    params[:dates].each do |d|
+      dat = DateTime.strptime(d,"%Y-%m-%d")
+      t = Time.at(dat).wday
+      if (t != 0) && (t != 6)
+        dateArray <<    t
       end
+    end
+    # if params[:dates].length.between?(1, 31)
+      total_hrs = dateArray.length * 8
+   
+      # end
    resutil = 0
    if params[:resource]
     params[:resource].each do |r|

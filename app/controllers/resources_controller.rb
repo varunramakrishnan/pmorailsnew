@@ -10,7 +10,7 @@
       resources.each do |res|
         role=Role.where({id: res.heirarchy_id}).pluck(:role_name)[0]
         manager_name=Resource.where({id: res.manager_id}).pluck(:employee_name)[0]
-        result << {id: res.id, employee_id: res.employee_id, employee_name: res.employee_name, heirarchy_id: res.heirarchy_id, role: role, skill: res.skills.collect(&:skill_name).join(","), skill_id: res.skills.collect(&:id),manager_name: manager_name}
+        result << {id: res.id, employee_id: res.employee_id, employee_name: res.employee_name, heirarchy_id: res.heirarchy_id, role: role, skill: res.skills.collect(&:skill_name).join(","), skill_id: res.skills.collect(&:id),manager_name: manager_name,mail: res.mail}
       end
       render json: result
     end
@@ -41,7 +41,7 @@
       allskills.each do |ski|
         skil << {id: ski.id}
       end 
-      result = {id: resource.id, employee_id: resource.employee_id, manager_id: resource.manager_id, employee_name: resource.employee_name, heirarchy_id: resource.heirarchy_id, role: resource.role, skill: resource.skills.collect(&:skill_name).join(","), skill_id: skil}
+      result = {id: resource.id, employee_id: resource.employee_id, manager_id: resource.manager_id, employee_name: resource.employee_name, heirarchy_id: resource.heirarchy_id, role: resource.role, skill: resource.skills.collect(&:skill_name).join(","), skill_id: skil,mail: resource.mail}
       render json: result
     end
 
@@ -73,7 +73,7 @@
           values = ser.dates[1,ser.dates.length-2].split(",")
         end
          
-      datenew=params[:resources][:Dates]  .to_s
+      datenew=params[:resources][:Dates].to_s
                inValues=datenew[1,datenew.length-2].split(",")
                inValues.each do |inv|
                 if values.include?(inv)
@@ -855,7 +855,7 @@
           test.each do |s|
             ResourceSkillMapping.create({resource_id: res.id, skill_id: s[:id]})
           end
-          result = {id: res.id, employee_id: res.employee_id, employee_name: res.employee_name, heirarchy_id: res.heirarchy_id, role: res.role, skill: res.skills.collect(&:skill_name).join(",")}
+          result = {id: res.id, employee_id: res.employee_id, employee_name: res.employee_name, heirarchy_id: res.heirarchy_id, role: res.role, skill: res.skills.collect(&:skill_name).join(","),mail: res.mail}
           format.html { redirect_to @resource, notice: 'Resource was successfully created.' }
           format.json { render json: {success: result } }
         else
@@ -893,7 +893,7 @@
       #end
       # Never trust parameters from the scary internet, only allow the white list through.
       def resource_params
-        params.require(:resource).permit(:employee_id, :employee_name, :role, :heirarchy_id, :skill, :resmodel,:manager_id)
+        params.require(:resource).permit(:employee_id, :employee_name, :role, :heirarchy_id, :skill, :resmodel,:manager_id,:mail)
       end
       def res_params
         params.permit(:resources)

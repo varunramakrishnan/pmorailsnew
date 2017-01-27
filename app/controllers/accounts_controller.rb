@@ -8,7 +8,11 @@ class AccountsController < ApplicationController
     result = []
     accounts.each do |res|
       if res.resource_id
-        man = Resource.find(res.resource_id).employee_name;
+        if Resource.find(res.resource_id)
+         man = Resource.find(res.resource_id).employee_name;
+         else
+          man = "Null"
+        end
       else
         man = "Null"
       end  
@@ -46,7 +50,12 @@ class AccountsController < ApplicationController
     end
     projects=[]
     pro.each do |pr|
-      owner=User.find(pr.createdBy).username
+      if pr.createdBy != 0
+        owner=Resource.find(pr.createdBy).employee_name
+      else
+        owner='root'
+      end
+      
       projects << {id: pr.id,project_code: pr.project_code,project_name: pr.project_name,owner:owner}
       # service = AccountServiceMapping.where(account_id: params[:id]).where(service_id: serv.id)
       # service.service_code = serv.service_code

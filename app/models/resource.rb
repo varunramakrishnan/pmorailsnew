@@ -1,5 +1,6 @@
 class Resource < ActiveRecord::Base
-	validates :employee_id, :presence => true, :uniqueness => true
+	validates :employee_id, :uniqueness => true
+	validates :mail, :presence => true, :uniqueness => true
 	# has_many :accounts, dependent: :destroy
 	has_many :accounts
 	has_many :resource_skill_mappings, dependent: :destroy
