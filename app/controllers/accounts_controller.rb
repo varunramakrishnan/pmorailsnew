@@ -8,7 +8,7 @@ class AccountsController < ApplicationController
     result = []
     accounts.each do |res|
       if res.resource_id
-        if Resource.find(res.resource_id)
+        if Resource.exists?(res.resource_id)
          man = Resource.find(res.resource_id).employee_name;
          else
           man = "Null"

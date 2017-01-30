@@ -118,11 +118,12 @@ def get_timecard
         comhash[val.account_id][val.service_id][val.project_id] = val.comments
         hash[val.account_id][val.service_id][val.project_id][val.date]  = val.hrs_logged
     end
-    res = Resource.find(uid)
-    if res
+    
+    if Resource.exists?(uid)
+        res = Resource.find(uid)
         username = res.employee_name
       else
-        username = user.username
+        username = "Null"
       end
     timecard = []
     timecard << hash
