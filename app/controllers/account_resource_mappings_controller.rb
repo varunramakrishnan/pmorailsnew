@@ -40,7 +40,7 @@ class AccountResourceMappingsController < ApplicationController
           if Project.exists?(ad[0][:project_id])
             procode=Project.find(ad[0][:project_id]).project_code
           else
-            procode="Other"
+            procode=""
           end
         else  
           # procode=sercode
