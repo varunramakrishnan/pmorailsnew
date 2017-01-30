@@ -234,12 +234,26 @@ def get_timecard
     params[:dates].each do |d|
       dat = DateTime.strptime(d,"%Y-%m-%d")
       t = Time.at(dat).wday
-      if (t != 0) && (t != 6)
-        dateArray <<    t
-      end
+      if params[:dates].length == 1
+          dateArray <<    t
+      elsif params[:dates].length > 2
+        if (t != 0) && (t != 6)
+          dateArray <<    t
+        end
+      else
+        if (t == 0) || (t == 5)
+          dateArray <<    t
+          break
+        else
+          dateArray <<    t
+          dateArray <<    t + 1
+          break
+        end
+      end  
     end
     # if params[:dates].length.between?(1, 31)
       total_hrs = dateArray.length * 8
+      # total_hrs = params[:dates].length * 8
    
       # end
    resutil = 0

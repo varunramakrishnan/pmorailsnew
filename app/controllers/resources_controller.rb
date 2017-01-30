@@ -234,7 +234,7 @@
     def create
       role=Role.find(resource_params[:heirarchy_id])
       
-      @resource = Resource.create({employee_id: resource_params[:employee_id],employee_name: resource_params[:employee_name], heirarchy_id: resource_params[:heirarchy_id],role:  role.role_name,manager_id:resource_params[:manager_id]})
+      @resource = Resource.create({employee_id: resource_params[:employee_id],mail: resource_params[:mail],employee_name: resource_params[:employee_name], heirarchy_id: resource_params[:heirarchy_id],role:  role.role_name,manager_id:resource_params[:manager_id]})
       #skill = Skill.find(params[:skill])
       respond_to do |format|
         if @resource.save
