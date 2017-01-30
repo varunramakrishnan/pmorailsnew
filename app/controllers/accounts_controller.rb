@@ -51,7 +51,11 @@ class AccountsController < ApplicationController
     projects=[]
     pro.each do |pr|
       if pr.createdBy != 0
-        owner=Resource.find(pr.createdBy).employee_name
+        if Resource.exists?(pr.createdBy)
+          owner=Resource.find(pr.createdBy).employee_name
+        else
+          owner='Other'  
+        end
       else
         owner='root'
       end
