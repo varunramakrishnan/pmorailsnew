@@ -37,7 +37,11 @@ class AccountResourceMappingsController < ApplicationController
         # result << {id: ser.resource_id, resource_id: ser.resource_id, employee_name: resname.employee_name ,account_id: params[:id],name: resname.employee_name , Dates: ad[0][:dates], percentage_loaded: ad[0][:percentage_loaded],service_id: ad[0][:service_id], minDate: ad[0][:dates][1,ad[0][:dates].length-2].delete(' ').split(",").min.to_i,maxDate: ad[0][:dates][1,ad[0][:dates].length-2].delete(' ').split(",").max.to_i ,saved: 1}
         sercode=Service.find(ad[0][:service_id]).service_code
         if ad[0][:project_id] != 0
-          procode=Project.find(ad[0][:project_id]).project_code
+          if Project.exists?(ad[0][:project_id])
+            procode=Project.find(ad[0][:project_id]).project_code
+          else
+            procode="Other"
+          end
         else  
           # procode=sercode
           procode=""
