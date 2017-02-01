@@ -304,7 +304,12 @@
                    newvar=hashes[invald]+s[:percentage_loaded].to_i
                    if newvar > 100
                     i=1
-                    message << (Resource.find(s[:resource_id]).employee_name).to_s+" has already been allocated to some other project on the selected dates"
+                    if Resource.exists?(s[:resource_id])
+                      message << (Resource.find(s[:resource_id]).employee_name).to_s+" has already been allocated to some other project on the selected dates"  
+                    else
+                      message << "Other has already been allocated to some other project on the selected dates"
+                    end
+                    
                     break
                    end
                   end  
@@ -318,7 +323,11 @@
                       ressave = AccountResourceMapping.create({resource_id: s[:resource_id],service_id: s[:service_id],project_id: s[:project_id], account_id: params[:account][:id] , percentage_loaded: s[:percentage_loaded],dates: s[:Dates]})                
                      # ressave =1
                      if ressave
-                      message << (Resource.find(s[:resource_id]).employee_name).to_s+" has  been added to the project"
+                      if Resource.exists?(s[:resource_id])
+                        message << (Resource.find(s[:resource_id]).employee_name).to_s+" has  been added to the project"
+                      else
+                        message << "Other has  been added to the project"
+                      end
                      end
                 end          
             

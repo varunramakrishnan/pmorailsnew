@@ -129,7 +129,7 @@ def get_timecard
     timecard << hash
     comments = []
     comments << comhash
-     result << {userid: uid,username:username, timecard: timecard,comments: comments}
+     result << {userid: uid,username:username, timecard: timecard,comments: comments,fetch: fetch}
     render json: result
   end
 
@@ -231,6 +231,9 @@ def get_timecard
   def get_report_data
     finaldata = []
     rids = []
+    aids = []
+    sids = []
+    # a = []
     dateArray = []
     params[:dates].each do |d|
       dat = DateTime.strptime(d,"%Y-%m-%d")
@@ -268,8 +271,70 @@ def get_timecard
     resources = Resource.all
    end
 
+   accountHash = Hash.new
+
+   if params[:account]
+    params[:account].each do |a|
+      aids << a[:id]
+      if ! accountHash.key?(a[:id])
+             accountHash[a[:id]] = Account.find(a[:id])
+      end
+    end
+
+    accounts = Account.where(id: aids).select("id")
+    # accounts << 0
+    # resources = Resource.all
+    # a << 0
+     a = []
+    accounts.each do |acc|
+      a << acc.id
+    end
+   else
+    accounts = Account.all.select("id")
+    # accounts << 0
+    a= [0]
+    accounts.each do |acc|
+      a << acc.id
+    end
+   end
+
+
+   
+    if params[:service]
+      oneaccount = true
+      params[:service].each do |s|
+        sids << s[:id]
+      end
+    # else
+    #   if aids.length == 1
+    #     oneaccount = true
+    #     sids = [0]
+    #     services = AccountServiceMapping.where(account_id: aids[0])
+    #     if services.kind_of?(Array)
+    #       services.each do |ser|
+    #         sids << ser.service_id
+    #       end  
+    #     else
+    #       if services 
+    #         if  services.service_id
+    #           sids << services.service_id
+    #         end
+    #       else
+    #         oneaccount = false
+    #       end
+    #     end
+        
+    #   else
+    #     oneaccount = false
+    #   end
+        
+    end
+      
+   
+
    
    util = 0
+   timeData = []
    res_hrs = resources.length * total_hrs
     resources.each do |res|
       data = []
@@ -277,8 +342,38 @@ def get_timecard
       ydata = []
       hashes = Hash.new
       params[:dates].each do |date|
-        timetrack = TimeTrack.where({resource_id: res.id, date: date})
+        if oneaccount
+          timetrack = TimeTrack.where({resource_id: res.id, date: date, account_id: a, service_id: sids})
+        else
+          timetrack = TimeTrack.where({resource_id: res.id, date: date, account_id: a})
+        end
+        
         timetrack.each do |t|
+          timehashes = Hash.new
+          if Account.exists?(t[:account_id])
+            account_c = Account.find(t[:account_id]).account_code
+          else
+            account_c = "Account Not Found"
+          end
+          if Service.exists?(t[:service_id])
+            service_c = Service.find(t[:service_id]).service_code
+          else
+            service_c = "Service Not Found"
+          end
+          if Project.exists?(t[:project_id])
+              project_c = Project.find(t[:project_id]).project_code
+          else
+              project_c = "Project Not Found"
+          end
+          timehashes["Name"] = res.employee_name
+          timehashes["account_code"] = account_c
+          timehashes["service_code"] = service_c
+          timehashes["project_code"] = project_c
+          timehashes["hours"] = t[:hrs_logged]
+          timehashes["date"] = t[:date]
+          
+          timeData << timehashes
+
             if ! hashes.key?(t[:account_id])
               hashes[t[:account_id]] = Hash.new
             end
@@ -301,34 +396,34 @@ def get_timecard
                  account_id = val
                  service_id = v
                  hrs = h
-                   if p == "0"
-                    if val == 0
-                      account_code = "Other"
+                    if p == "0"
+                      if val == 0
+                        account_code = "Other"
+                      else
+                        if Account.exists?(account_id)
+                          account_code = Account.find(account_id).account_code
+                        else
+                          account_code = "Account Not Found"
+                        end
+                      end
+                      if v == 0
+                        service_code = "OMC"
+                      else
+                        if Service.exists?(service_id)
+                          service_code = Service.find(service_id).service_code
+                        else
+                          service_code = "Service Not Found"
+                        end
+                      end
+                      project_name = account_code + " - " +  service_code
                     else
                       if Account.exists?(account_id)
-                        account_code = Account.find(account_id).account_code
+                          account_code = Account.find(account_id).account_code
                       else
-                        account_code = "Account Not Found"
+                          account_code = "Account Not Found"
                       end
-                    end
-                    if v == 0
-                      service_code = "OMC"
-                    else
-                      if Service.exists?(service_id)
-                        service_code = Service.find(service_id).service_code
-                      else
-                        service_code = "Service Not Found"
-                      end
-                    end
-                    project_name = account_code + " - " +  service_code
-                   else
-                    if Account.exists?(account_id)
-                        account_code = Account.find(account_id).account_code
-                    else
-                        account_code = "Account Not Found"
-                    end
 
-                    if Service.exists?(service_id)
+                      if Service.exists?(service_id)
                         service_code = Service.find(service_id).service_code
                       else
                         service_code = "Service Not Found"
@@ -341,12 +436,15 @@ def get_timecard
                       end
 
 
-                    project_name = account_code + " - " + service_code + " - " + project_code
-                   end
+                      project_name = account_code + " - " + service_code + " - " + project_code
+                    end
 
                  perc = h*100/total_hrs
-                constr  = project_name + " - " +perc.to_s + "%"
-                label << constr
+                constr  = project_name + " - " +perc.round(2).to_s + "%"
+                if perc !=0 && perc !=0.0 
+                  label << constr
+                end
+                
                 ydata << h
                 y = h
                 data << {"key": key,"y": y}
@@ -374,7 +472,7 @@ def get_timecard
       # end
     end
     resutil  = util.to_f*100/res_hrs.to_f
-    render json: {donut: finaldata,util: resutil.round(2),total_hrs: res_hrs,util_hrs: util}
+    render json: {donut: finaldata,util: resutil.round(2),total_hrs: res_hrs,util_hrs: util,accounts: sids, timedata: timeData}
   end
 
   private

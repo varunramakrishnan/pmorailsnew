@@ -43,6 +43,7 @@ class UsersController < ApplicationController
       search_param = params[:username]
       result_attrs = ["sAMAccountName", "displayName", "mail"]
       search_filter = Net::LDAP::Filter.eq("sAMAccountName", search_param)
+      # search_filter = Net::LDAP::Filter.eq("mail", search_param)
       group_filter = Net::LDAP::Filter.eq("objectClass", "user")
       composite_filter = Net::LDAP::Filter.join(search_filter, group_filter)
       host = ENV['LDAPHOST']
@@ -75,8 +76,9 @@ class UsersController < ApplicationController
                 if resource
                   resource_id = resource.id
                   employee_id = resource.employee_id
+                  role = Role.find(resource.heirarchy_id)
                   respond_to do |format|
-                   result = {username: sAMAccountName, employee_id: employee_id,resource_id: resource_id, role: resource.heirarchy_id,created_at: resource.created_at ,updated_at: resource.updated_at,mail: resource.mail}
+                   result = {username: sAMAccountName, employee_id: employee_id,resource_id: resource_id, role: role.heirarchy_id,created_at: resource.created_at ,updated_at: resource.updated_at,mail: resource.mail}
                    format.json { render json: {user: result,access_token: access_token } }
                   end
                 else
