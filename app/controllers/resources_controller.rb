@@ -888,6 +888,45 @@
       end
     end
 
+# Get filtered people across entities
+
+    def get_filtered_people
+      aids = []
+      sids = []
+      mids = []
+      if params[:account].kind_of?(Array)
+        params[:account].each do |a|
+          aids << a[:id]
+        end
+      end
+
+      if params[:service].kind_of?(Array)
+        params[:service].each do |s|
+          sids << s[:id]
+        end
+      end
+      if params[:manager].kind_of?(Array)
+        params[:manager].each do |m|
+          mids << m[:id]
+        end
+      end
+      if sids.length > 0
+        aresults = AccountResourceMapping.where({account_id: aids,service_id: sids}).select(:resource_id).map(&:resource_id).uniq
+         # results = sids.length
+      else
+        aresults = AccountResourceMapping.where({account_id: aids}).select(:resource_id).map(&:resource_id).uniq
+      end
+
+      if mids.length > 0
+        mresults = Resource.where({manager_id: mids}).select(:id).map(&:id).uniq
+         # results = sids.length
+      else
+        mresults = Resource.all.select(:id).map(&:id).uniq
+      end
+      results = mresults & aresults
+      render json: results
+    end
+
     private
       # Use callbacks to share common setup or constraints between actions.
       def set_resource

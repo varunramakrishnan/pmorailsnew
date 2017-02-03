@@ -55,6 +55,7 @@ Rails.application.routes.draw do
   post 'save-image/:type/:id' => 'resources#saveimage'
   post 'resource-managers' => 'resources#resourcesUnderManager' 
   get 'get-account-attributes' => 'attributes#get_account_attributes'
+  post 'get-filtered-people' => 'resources#get_filtered_people' 
   
   
 

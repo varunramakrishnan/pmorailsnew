@@ -233,6 +233,105 @@ def get_timecard
     rids = []
     aids = []
     sids = []
+
+      raids = []
+      rsids = []
+      rmids = []
+      accountHash = Hash.new
+      if params[:account].kind_of?(Array)
+        params[:account].each do |a|
+          raids << a[:id]
+          if ! accountHash.key?(a[:id])
+             accountHash[a[:id]] = Account.find(a[:id])
+          end
+        end
+        accounts = Account.where(id: aids).select("id")
+        a = []
+        accounts.each do |acc|
+          a << acc.id
+        end
+      else
+        accounts = Account.all.select("id")
+        a= [0]
+        accounts.each do |acc|
+          a << acc.id
+        end
+
+      end
+
+      if params[:service].kind_of?(Array)
+        if params[:service].length > 0
+
+          params[:service].each do |s|
+            rsids << s[:id]
+          end
+          oneaccount = true
+        end
+      end
+
+      if params[:manager].kind_of?(Array)
+        params[:manager].each do |m|
+          rmids << m[:id]
+        end
+      end
+
+      if params[:resource].kind_of?(Array)
+        params[:resource].each do |r|
+        rids << r[:id]
+        end
+      end
+
+      if rsids.length > 0 || rmids.length > 0 || raids.length > 0 || rids.length > 0 
+        if rsids.length > 0
+          # aresults = AccountResourceMapping.where({account_id: raids,service_id: rsids})
+          aresults = AccountResourceMapping.where({account_id: raids,service_id: rsids}).select(:resource_id).map(&:resource_id).uniq
+        else
+          aresults = AccountResourceMapping.where({account_id: raids}).select(:resource_id).map(&:resource_id).uniq
+          # aresults = AccountResourceMapping.where({account_id: raids})
+        end
+
+        if rmids.length > 0
+          # mresults = Resource.where({manager_id: rmids})
+          mresults = Resource.where({manager_id: rmids}).select(:id).map(&:id).uniq
+        else
+          # mresults = Resource.all
+          mresults = Resource.all.select(:id).map(&:id).uniq
+        end
+        if rids.length > 0
+          # rresults = Resource.where(id: rids)
+          rresults = Resource.where(id: rids).select(:id).map(&:id).uniq
+          if raids.length > 0
+            final_results = (mresults & aresults) + rresults  
+          else
+            if rmids.length > 0
+              final_results = mresults + rresults
+            else
+              final_results = rresults
+            end
+          end
+          
+        else
+          # rresults = Resource.all
+          rresults = Resource.all.select(:id).map(&:id).uniq
+          if raids.length > 0
+            final_results = (mresults & aresults & rresults  )
+          else
+            if rmids.length > 0
+              final_results = mresults & rresults
+            else
+              final_results = rresults
+            end
+            
+          end
+        end
+        
+        # final_results = results +  rresults
+      else
+        # final_results = Resource.all.select(:id).map(&:id).uniq
+         final_results = Resource.all.select(:id).map(&:id).uniq
+      end
+
+
     # a = []
     dateArray = []
     params[:dates].each do |d|
@@ -261,15 +360,14 @@ def get_timecard
    
       # end
    resutil = 0
-   if params[:resource]
-    params[:resource].each do |r|
-      rids << r[:id]
-    end
-    resources = Resource.where(id: rids)
-    # resources = Resource.all
-   else
-    resources = Resource.all
-   end
+   # if params[:resource]
+   #  params[:resource].each do |r|
+   #    rids << r[:id]
+   #  end
+   #  resources = Resource.where(id: rids)
+   # else
+   #  resources = Resource.all
+   # end
 
    accountHash = Hash.new
 
@@ -282,9 +380,6 @@ def get_timecard
     end
 
     accounts = Account.where(id: aids).select("id")
-    # accounts << 0
-    # resources = Resource.all
-    # a << 0
      a = []
     accounts.each do |acc|
       a << acc.id
@@ -300,79 +395,84 @@ def get_timecard
 
 
    
-    if params[:service]
-      oneaccount = true
-      params[:service].each do |s|
-        sids << s[:id]
-      end
-    # else
-    #   if aids.length == 1
-    #     oneaccount = true
-    #     sids = [0]
-    #     services = AccountServiceMapping.where(account_id: aids[0])
-    #     if services.kind_of?(Array)
-    #       services.each do |ser|
-    #         sids << ser.service_id
-    #       end  
-    #     else
-    #       if services 
-    #         if  services.service_id
-    #           sids << services.service_id
-    #         end
-    #       else
-    #         oneaccount = false
-    #       end
-    #     end
-        
-    #   else
-    #     oneaccount = false
-    #   end
-        
-    end
+   
       
    
 
    
    util = 0
    timeData = []
-   res_hrs = resources.length * total_hrs
-    resources.each do |res|
+   timeaggData = []
+   res_hrs = final_results.length * total_hrs
+    final_results.each do |res|
       data = []
       label = []
       ydata = []
       hashes = Hash.new
       params[:dates].each do |date|
         if oneaccount
-          timetrack = TimeTrack.where({resource_id: res.id, date: date, account_id: a, service_id: sids})
+          timetrack = TimeTrack.where({resource_id: res, date: date, account_id: a, service_id: rsids})
+          # timeaggtrack = TimeTrack.where({resource_id: res, date: date, account_id: a, service_id: rsids}).group("date")
         else
-          timetrack = TimeTrack.where({resource_id: res.id, date: date, account_id: a})
+          timetrack = TimeTrack.where({resource_id: res, date: date, account_id: a})
+          # timeaggtrack = TimeTrack.where({resource_id: res, date: date, account_id: a}).group("date")
         end
-        
+        # timeaggtrack.each do |t|
+        #   timeagghashes = Hash.new
+        #   if Account.exists?(t[:account_id])
+        #     account_c = Account.find(t[:account_id]).account_code
+        #   else
+        #     account_c = "Other"
+        #   end
+        #   if Service.exists?(t[:service_id])
+        #     service_c = Service.find(t[:service_id]).service_code
+        #   else
+        #     service_c = "Other"
+        #   end
+        #   if Project.exists?(t[:project_id])
+        #       project_c = Project.find(t[:project_id]).project_code
+        #   else
+        #       project_c = "Other"
+        #   end
+        #       found = Resource.find(res)
+        #       timeagghashes["employee_code"] = found.employee_id
+        #       timeagghashes["Name"] = found.employee_name
+        #       timeagghashes["account_code"] = account_c
+        #       timeagghashes["service_code"] = service_c
+        #       timeagghashes["project_code"] = project_c
+        #       timeagghashes["hours"] = t[:hrs_logged]
+        #       timeaggData << timeagghashes
+
+        # end
         timetrack.each do |t|
           timehashes = Hash.new
           if Account.exists?(t[:account_id])
             account_c = Account.find(t[:account_id]).account_code
           else
-            account_c = "Account Not Found"
+            account_c = "Other"
           end
           if Service.exists?(t[:service_id])
             service_c = Service.find(t[:service_id]).service_code
           else
-            service_c = "Service Not Found"
+            service_c = "Other"
           end
           if Project.exists?(t[:project_id])
               project_c = Project.find(t[:project_id]).project_code
           else
-              project_c = "Project Not Found"
+              project_c = "Other"
           end
-          timehashes["Name"] = res.employee_name
-          timehashes["account_code"] = account_c
-          timehashes["service_code"] = service_c
-          timehashes["project_code"] = project_c
-          timehashes["hours"] = t[:hrs_logged]
-          timehashes["date"] = t[:date]
-          
-          timeData << timehashes
+          if t[:hrs_logged] != 0 && t[:hrs_logged] != 0.0
+              found = Resource.find(res)
+              timehashes["employee_code"] = found.employee_id
+              timehashes["Name"] = found.employee_name
+              timehashes["account_code"] = account_c
+              timehashes["service_code"] = service_c
+              timehashes["project_code"] = project_c
+              timehashes["date"] = t[:date]
+              timehashes["hours"] = t[:hrs_logged]
+              
+              timeData << timehashes
+            end
 
             if ! hashes.key?(t[:account_id])
               hashes[t[:account_id]] = Hash.new
@@ -388,7 +488,7 @@ def get_timecard
         end
       end
       totutl=0
-
+      found = Resource.find(res)
       hashes.each do |val,key| 
           key.each do |v,k| 
                k.each do |p,h|
@@ -396,49 +496,58 @@ def get_timecard
                  account_id = val
                  service_id = v
                  hrs = h
-                    if p == "0"
+                 timeagghashes = Hash.new
+                 
+                  timeagghashes["employee_code"] = found.employee_id
+                   timeagghashes["Name"] = found.employee_name
+                   if p == "0"
                       if val == 0
                         account_code = "Other"
                       else
                         if Account.exists?(account_id)
                           account_code = Account.find(account_id).account_code
                         else
-                          account_code = "Account Not Found"
+                          account_code = "Other"
                         end
                       end
+                      timeagghashes["account_code"] = account_code
                       if v == 0
-                        service_code = "OMC"
+                        service_code = "Other"
                       else
                         if Service.exists?(service_id)
                           service_code = Service.find(service_id).service_code
                         else
-                          service_code = "Service Not Found"
+                          service_code = "Other"
                         end
                       end
+                      timeagghashes["service_code"] = service_code
+                      timeagghashes["project_code"] = "Other"
                       project_name = account_code + " - " +  service_code
                     else
                       if Account.exists?(account_id)
                           account_code = Account.find(account_id).account_code
                       else
-                          account_code = "Account Not Found"
+                          account_code = "Other"
                       end
-
+                      timeagghashes["account_code"] = account_code
                       if Service.exists?(service_id)
                         service_code = Service.find(service_id).service_code
                       else
-                        service_code = "Service Not Found"
+                        service_code = "Other"
                       end
+                      timeagghashes["service_code"] = service_code
 
                       if Project.exists?(project_id)
                           project_code = Project.find(project_id).project_code
                       else
-                          project_code = "Project Not Found"
+                          project_code = "Other"
                       end
-
+                      timeagghashes["project_code"] = project_code
 
                       project_name = account_code + " - " + service_code + " - " + project_code
                     end
-
+                    timeagghashes["hours"] = h
+                    timeaggData << timeagghashes
                  perc = h*100/total_hrs
                 constr  = project_name + " - " +perc.round(2).to_s + "%"
                 if perc !=0 && perc !=0.0 
@@ -450,6 +559,7 @@ def get_timecard
                 data << {"key": key,"y": y}
                 totutl += h
                 util += h
+
                end
           end
       end
@@ -464,7 +574,7 @@ def get_timecard
          else
         colour = "red"
       end
-      finaldata << {"name": res.employee_name,"emp_id": res.employee_id,"id": res.id,"spark": {"data": data,"label": label,"ydata": ydata},"hours": totutl.to_s + "/" + total_hrs.to_s,"perc": totperc.round(2),"colour": colour}
+      finaldata << {"name": Resource.find(res).employee_name,"emp_id": Resource.find(res).employee_id,"id": res,"spark": {"data": data,"label": label,"ydata": ydata},"hours": totutl.to_s + "/" + total_hrs.to_s,"perc": totperc.round(2),"colour": colour}
       
       # if arr.exclude? res.id
       #   arr << res.id
@@ -472,7 +582,7 @@ def get_timecard
       # end
     end
     resutil  = util.to_f*100/res_hrs.to_f
-    render json: {donut: finaldata,util: resutil.round(2),total_hrs: res_hrs,util_hrs: util,accounts: sids, timedata: timeData}
+    render json: {donut: finaldata,util: resutil.round(2),total_hrs: res_hrs,util_hrs: util,accounts: sids, timedata: timeData, timeaggData: timeaggData}
   end
 
   private
