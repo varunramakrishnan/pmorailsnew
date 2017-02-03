@@ -301,10 +301,10 @@ def get_timecard
           # rresults = Resource.where(id: rids)
           rresults = Resource.where(id: rids).select(:id).map(&:id).uniq
           if raids.length > 0
-            final_results = (mresults & aresults) + rresults  
+            final_results = (mresults & aresults) & rresults  
           else
             if rmids.length > 0
-              final_results = mresults + rresults
+              final_results = mresults & rresults
             else
               final_results = rresults
             end
@@ -430,7 +430,7 @@ def get_timecard
         project_c = "Other"
       end
     
-      if t[:hrs_logged] != 0 && t[:hrs_logged] != 0.0
+      # if t[:hrs_logged] != 0 && t[:hrs_logged] != 0.0
         found = Resource.find(t[:resource_id])
         timehashes["employee_code"] = found.employee_id
         timehashes["Name"] = found.employee_name
@@ -441,7 +441,7 @@ def get_timecard
         timehashes["hours"] = t[:hrs_logged]
         
         timeData << timehashes
-      end
+      # end
       
       if ! hashes.key?(t[:resource_id])
       hashes[t[:resource_id]] = Hash.new
@@ -558,7 +558,7 @@ def get_timecard
       
       
     resutil  = util.to_f*100/res_hrs.to_f
-    render json: {donut: finaldata,util: resutil.round(2),total_hrs: res_hrs,util_hrs: util,accounts: sids, timedata: timeData, timeaggData: timeaggData, final_results:final_results}
+    render json: {donut: finaldata,util: resutil.round(2),total_hrs: res_hrs,util_hrs: util,accounts: sids, timedata: timeData, timeaggData: timeaggData}
   end
 
   private
