@@ -1,4 +1,5 @@
 class Account < ActiveRecord::Base
+  acts_as_paranoid
 	validates :account_code, :presence => true, :uniqueness => true
   validates :organisational_unit_id, :presence => true
 	belongs_to :organisational_unit

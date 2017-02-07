@@ -1,4 +1,5 @@
 class OrganisationalUnit < ActiveRecord::Base
+	acts_as_paranoid
 	validates :unit_code, :presence => true, :uniqueness => true
 	validates :unit_name, :presence => true
 	has_many :accounts, dependent: :destroy

@@ -4,7 +4,19 @@ class ProjectsController < ApplicationController
   # GET /projects
   # GET /projects.json
   def index
-    @projects = Project.all
+    @projects = Project.joins(:account,:service).select("projects.*, accounts.account_name,services.service_name").all
+
+
+
+    # result = []
+    # @projects.each do |pro|
+    #   # result << {id: res.id, account_name: res.account_name, organisational_unit_name: res.organisational_unit.unit_name, manager: man, resource_needed: res.resource_needed, status: res.status, services: res.services.collect(&:service_name).join(",")}
+    #   result << {id: pro.id, account_name: res.account_name,account_code: res.account_code, organisational_unit_code: res.organisational_unit.unit_code, manager: man, status: res.project_status, services: res.services.collect(&:service_code).join(","),   region: res.region, location: res.location, comments: res.comments,account_lob: res.account_lob,account_contact: res.account_contact,csm_contact: res.csm_contact,sales_contact: res.sales_contact,overall_health: res.overall_health,actual_close_date: res.actual_close_date,actual_closed_month: res.actual_closed_month,annual_forecast: res.annual_forecast,closure_probability: res.closure_probability,currency: res.currency,expected_close_date: res.expected_close_date,expected_close_month: res.expected_close_month,market_size: res.market_size,owner: res.owner,received_date: res.received_date,sales_stage: res.sales_stage,time_zone: res.time_zone}
+    # end
+    # render json: result
+
+
+
   end
 
   # GET /projects/1

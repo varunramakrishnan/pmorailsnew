@@ -553,7 +553,7 @@ def get_timecard
         else
         colour = "red"
         end
-        finaldata << {"name": found.employee_name,"emp_id": found.employee_id,"id": found.id,"spark": {"data": data,"label": label,"ydata": ydata},"hours": totutl.to_s + "/" + total_hrs.to_s,"perc": totperc.round(2),"colour": colour}
+        finaldata << {"name": found.employee_name,"emp_id": found.employee_id.to_i,"id": found.id,"spark": {"data": data,"label": label,"ydata": ydata},"hours": totutl.to_s + "/" + total_hrs.to_s,"perc": totperc.round(2),"colour": colour}
   end 
       
       
